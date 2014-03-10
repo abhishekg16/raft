@@ -31,6 +31,13 @@ TestConfig.json this file contains the configuration parameters for the test clu
 
 ###API
 
+Raft package provide a New method which take myid ( of the local server),  path ( path of the configuration files ),  mode ( specify the mnode of start, 0=> normal mode 1=> debug mode). and return a pointer to the new raft instance.
+
+{
+	func NewRaft(myid int, path string, mode int) (*consensus, bool, error) 
+}
+
+
 type Raft interface {
 
     Term()     int   // return the current term 
