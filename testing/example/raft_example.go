@@ -1,6 +1,5 @@
 package main
 
-//import "testing"
 import "os/exec"
 import "log"
 import "os"
@@ -91,19 +90,16 @@ func waitForLeader(testCluster cluster.Server, waitChan chan bool){
 	if count == 1  {
 		fmt.Println("Leader is %v",leader)
 		waitChan <- true
-		
-		//return leader, true
 	}
 	waitChan <- false  
-	//return -1, false
+
 	
 } 
 
-// Test there should be only one leader
-//func TestRaft ( t *testing.T) {
-func main() {
 
-	//executablePath
+//This example start a raft instane and wait till leader is elected 
+
+func main() {
 	ePath := PATH + "/bin/raft"  
 	log.Println(ePath)
 	
@@ -118,7 +114,6 @@ func main() {
 	// starting 
 	for i := 0 ; i < NOFSERVER ; i++ {
 		err :=	rInst[i].Start()
-		//time.Sleep(2*time.Second)
 		if err != nil {
 			log.Printf("Not able to start %v", i)
 			log.Println(err)
@@ -144,13 +139,11 @@ func main() {
  	
  	go waitForLeader(testClusterObj, waitChan)
  	
- 	//askForLeader(testClusterObj)
- 	
  	 
  	 ok := <- waitChan
  	
  	if ok == false {
- 		//t.Errorf("Multiple Servers")
+ 		
  		fmt.Println("Multiple Servers")
  	}	
  	
@@ -159,8 +152,5 @@ func main() {
  	for  i := 0 ; i < NOFSERVER ; i++ {
  		rInst[i].Process.Kill()	
  	} 
- 	
- 	//cmd.Process.Kill()
-	//cmd.Wait()
 	log.Println("The process has started") 	
 }

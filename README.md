@@ -1,11 +1,11 @@
 #Raft (Consensus Module)#
-Thisn project provides an implementation of Raft consensus algorithm. The consensus algorithm guarantee that there would be only one leader a time the system in each term. The raft also provides the well defined interface by using which you can get information about the  leader and term. 
-	Raft uses the cluster implementation a underlying communication channel which allows different raft instances to communicate over the network
+This project provides an implementation of Raft consensus algorithm. The consensus algorithm guarantee that there would be only one leader a time in the system for a term. The raft also provides the well defined interface by using which you can get information about the  leader and term. 
+	Raft uses the cluster implementation as a underlying communication channel which allows different raft instances to communicate over the network
 
 ####Features of Implementation ####
 1. Provides easily configurable files 
 2. File logging facilities
-3. Provide to different port for the message and control message 
+3. Provide two different port for the message and control message 
 
 #### Limitation ####
 1. Logging of raft message is not handled
@@ -60,7 +60,37 @@ The raft module depends on the cluster for underlying communication. Which in tr
    This will install the binary in the $GOPATH/bin folder
 4. Go to raft directory and give command 
 	go test
-	
+
+
+##Example##
+Here is an example which instantiate a raft instance and ask for the leader. This main program take the pid of the raft instance as command line argument. So to start this method start following command
+
+$go run raft\_main.go -id 0
+
+######raft\_main.go
+
+func main() {
+
+	var f int
+	flag.IntVar(&f, "id", -1, "enter pid")
+	flag.Parse()
+	if f == -1 {
+		fmt.Println("Invalid Arguments")
+		os.Exit(0)
+	}
+	// create instance
+	rObj, _, err := raft.NewRaft(f, "./conf", 0)
+	if err != nil {
+		log.Println(err)
+		fmt.Println("errorr occured")
+		os.Exit(1)
+	}
+	fmt.Println(rObj.IsTerm()) 
+
+}
+
+
+ 	
 
 
 
