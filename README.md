@@ -19,7 +19,7 @@ raft .json have all the configuration parameters related to the raft instance.
 
 1. myid : Id of the raft instance 
 2. Etimeout : Election timeout
-2. hfre : Time interval between thhe heartbeat signals
+2. hfre : Time interval between the heartbeat signals
 3. dataDir : directory where all the persistent data related to raft is stored
 4. logDir : directory where all the log message are dumped
 
@@ -51,17 +51,13 @@ type Raft interface {
 
 
 ##Building##
-The raft module depends on the cluster for underlying communication. Which in trun usage the Zeromq. 
+The raft module depends on the cluster for underlying communication. Which internally  usage the Zeromq. 
 
 1. To build the project you need to install the zmq4 golang binding. Binding are present at https://github.com/pebbe/zmq4
-
-2. Get Raft from git hub
-	go git github.com/abhishekg16/raft
-3. Go to the raft/testing/test\_main directory
-	go install
+2. Get Raft from git hub. "go git github.com/abhishekg16/raft"
+3. Go to the raft/testing/test\_main directory. and use command "go install".
    This will install the binary in the $GOPATH/bin folder
-4. Go to raft directory and give command 
-	go test
+4. Go to raft directory and give command "go test"
 
 
 ##Example##
