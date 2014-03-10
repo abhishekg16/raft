@@ -1,0 +1,65 @@
+Log: 2014/03/10 10:23:17 raft.go:299: ============= CONFIGURATION =================
+Log: 2014/03/10 10:23:17 raft.go:300: 	 PID : 0 
+Log: 2014/03/10 10:23:17 raft.go:301: 	 ELECTION TIMEOUT : 2s 
+Log: 2014/03/10 10:23:17 raft.go:302: 	 DATA DIR : ./data 
+Log: 2014/03/10 10:23:17 raft.go:303: 	 HEART BEAT INTERVAL 2s 
+Log: 2014/03/10 10:23:17 raft.go:442: Follower State : Checking Leader tacker state
+Log: 2014/03/10 10:23:17 raft.go:448: Follower State : Leader Tracker is blocked, sending enable signal 
+Log: 2014/03/10 10:23:17 raft.go:398: Leader Tracker : waiting for enable signal
+Log: 2014/03/10 10:23:17 raft.go:400: Leader Tracker : Got Enable Signal
+Log: 2014/03/10 10:23:17 raft.go:404: Leader Tracker : Started , Sending back notification
+Log: 2014/03/10 10:23:17 raft.go:410: Timeout duration 2.6548s
+Log: 2014/03/10 10:23:17 raft.go:461: Follower State : Follow is Activated
+Log: 2014/03/10 10:23:17 raft.go:469: Follower State : election status : false 
+Log: 2014/03/10 10:23:18 raft.go:490: Follower State : No message arrived
+Log: 2014/03/10 10:23:18 raft.go:469: Follower State : election status : false 
+Log: 2014/03/10 10:23:19 raft.go:490: Follower State : No message arrived
+Log: 2014/03/10 10:23:19 raft.go:469: Follower State : election status : false 
+Log: 2014/03/10 10:23:20 raft.go:420: Leader Tracker : Election Timeout
+Log: 2014/03/10 10:23:20 raft.go:398: Leader Tracker : waiting for enable signal
+Log: 2014/03/10 10:23:20 raft.go:490: Follower State : No message arrived
+Log: 2014/03/10 10:23:20 raft.go:469: Follower State : election status : true 
+Log: 2014/03/10 10:23:20 raft.go:471: Follower State : Election Timeout
+Log: 2014/03/10 10:23:20 raft.go:472: Follower State : Moving to Candidate
+Log: 2014/03/10 10:23:20 raft.go:595: Candidate State : System in candidate state
+Log: 2014/03/10 10:23:20 raft.go:603: Candidate State : Incremented The term , Voted for self
+Log: 2014/03/10 10:23:20 raft.go:605: Candidate State : Required Majority : 2
+Log: 2014/03/10 10:23:20 raft.go:606: Candidate State : Starting Election With Term 1
+Log: 2014/03/10 10:23:20 raft.go:608: Candidate State : Enabled Leader Tracker 1
+Log: 2014/03/10 10:23:20 raft.go:400: Leader Tracker : Got Enable Signal
+Log: 2014/03/10 10:23:20 raft.go:404: Leader Tracker : Started , Sending back notification
+Log: 2014/03/10 10:23:20 raft.go:410: Timeout duration 3.7028s
+Log: 2014/03/10 10:23:20 raft.go:700: Candidate State : Got a vote Response from 2
+Log: 2014/03/10 10:23:20 raft.go:711: Candidate State : Vote Count 2 
+ 
+Log: 2014/03/10 10:23:20 raft.go:715: 0  Candidate State : has been elected as a leader
+Log: 2014/03/10 10:23:20 raft.go:753: Leader State :System in Leader State
+Log: 2014/03/10 10:23:20 raft.go:851: Got vote response.. rejecting
+Log: 2014/03/10 10:23:21 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:22 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:22 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:23 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:24 raft.go:420: Leader Tracker : Election Timeout
+Log: 2014/03/10 10:23:24 raft.go:398: Leader Tracker : waiting for enable signal
+Log: 2014/03/10 10:23:24 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:24 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:25 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:26 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:26 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:27 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:28 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:29 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:30 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:30 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:31 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:32 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:34 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:34 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:35 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:36 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:36 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:37 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:38 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
+Log: 2014/03/10 10:23:38 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:40 raft.go:785: Leader State : No message arrived
+Log: 2014/03/10 10:23:40 raft.go:373: Heart Beat Manager : Broadcasting HeartBeat
