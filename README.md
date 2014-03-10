@@ -12,9 +12,11 @@ This project provides an implementation of Raft consensus algorithm. The consens
 
 
 ##Usages##
-Raft Provides a set of configuration files which can be easily configured to control the system behaviour. All the configuration files are present in the conf folder
-###### raft.json 
-raft .json have all the configuration parameters related to the raft instance
+Raft provides a set of configuration files which can be easily configured to control the system behaviour. All the configuration files are present in the conf folder
+
+##### raft.json 
+raft .json have all the configuration parameters related to the raft instance.
+
 1. myid : Id of the raft instance 
 2. Etimeout : Election timeout
 2. hfre : Time interval between thhe heartbeat signals
