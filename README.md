@@ -1,0 +1,77 @@
+#Raft (Consensus Module)#
+Thisn project provides an implementation of Raft consensus algorithm. The consensus algorithm guarantee that there would be only one leader a time the system in each term. The raft also provides the well defined interface by using which you can get information about the  leader and term. 
+	Raft uses the cluster implementation a underlying communication channel which allows different raft instances to communicate over the network
+
+####Features of Implementation ####
+1. Provides easily configurable files 
+2. File logging facilities
+3. Provide to different port for the message and control message 
+
+#### Limitation ####
+1. Logging of raft message is not handled
+
+
+##Usages##
+Raft Provides a set of configuration files which can be easily configured to control the system behaviour. All the configuration files are present in the conf folder
+###### raft.json 
+raft .json have all the configuration parameters related to the raft instance
+1. myid : Id of the raft instance 
+2. Etimeout : Election timeout
+2. hfre : Time interval between thhe heartbeat signals
+3. dataDir : directory where all the persistent data related to raft is stored
+4. logDir : directory where all the log message are dumped
+
+##### servers.json
+servers.json file have all the configuration parameter related to the cluster instance. It contains the ID the socket address of all the peer instances.
+
+##### TestConfig.json 
+TestConfig.json this file contains the configuration parameters for the test cluster
+
+###API
+
+type Raft interface {
+
+    Term()     int   // return the current term 
+
+    IsLeader() bool  // return whether the current raft instance is Leader 
+
+    Pid() int		// return the Pid id current Raft instance
+    
+    // Only available in DEBUG mode
+    Block(duration time.Duration) bool // Block the raft instance for specific duration
+
+    Resume() bool // Resume the blocked raft instance
+
+    Shutdown() // Shutdown the raft instance 
+
+}
+ 
+
+
+##Building##
+The raft module depends on the cluster for underlying communication. Which in trun usage the Zeromq. 
+
+1. To build the project you need to install the zmq4 golang binding. Binding are present at https://github.com/pebbe/zmq4
+
+2. Get Raft from git hub
+	go git github.com/abhishekg16/raft
+3. Go to the raft/testing/test\_main directory
+	go install
+   This will install the binary in the $GOPATH/bin folder
+4. Go to raft directory and give command 
+	go test
+	
+
+
+
+
+
+	
+
+
+
+ 
+
+
+
+
