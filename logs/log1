@@ -1,90 +1,1337 @@
-Log: 2014/03/10 10:23:17 raft.go:299: ============= CONFIGURATION =================
-Log: 2014/03/10 10:23:17 raft.go:300: 	 PID : 1 
-Log: 2014/03/10 10:23:17 raft.go:301: 	 ELECTION TIMEOUT : 2s 
-Log: 2014/03/10 10:23:17 raft.go:302: 	 DATA DIR : ./data 
-Log: 2014/03/10 10:23:17 raft.go:303: 	 HEART BEAT INTERVAL 2s 
-Log: 2014/03/10 10:23:17 raft.go:442: Follower State : Checking Leader tacker state
-Log: 2014/03/10 10:23:17 raft.go:448: Follower State : Leader Tracker is blocked, sending enable signal 
-Log: 2014/03/10 10:23:17 raft.go:398: Leader Tracker : waiting for enable signal
-Log: 2014/03/10 10:23:17 raft.go:400: Leader Tracker : Got Enable Signal
-Log: 2014/03/10 10:23:17 raft.go:404: Leader Tracker : Started , Sending back notification
-Log: 2014/03/10 10:23:17 raft.go:410: Timeout duration 3.6162s
-Log: 2014/03/10 10:23:17 raft.go:461: Follower State : Follow is Activated
-Log: 2014/03/10 10:23:17 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:18 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:18 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:19 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:19 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:20 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:20 raft.go:535: Follower State: Got Vote Request from  0
-Log: 2014/03/10 10:23:20 raft.go:557: Follower State : Request Vote received with higher term
-Log: 2014/03/10 10:23:20 raft.go:565: Follower State :Giving Vote
-Log: 2014/03/10 10:23:20 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:21 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:21 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:22 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:22 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:22 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:22 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:22 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:22 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:23 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:23 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:24 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:24 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:24 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:24 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:24 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:24 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:25 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:25 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:26 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:26 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:26 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:26 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:26 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:26 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:27 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:27 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:28 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:28 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:28 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:28 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:29 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:29 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:30 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:30 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:30 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:30 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:30 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:30 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:31 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:31 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:32 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:32 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:32 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:32 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:33 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:33 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:34 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:34 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:34 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:34 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:34 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:34 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:35 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:35 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:36 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:36 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:36 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:36 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:37 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:37 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:38 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:38 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:39 raft.go:493: Follower State :  message arrived
-Log: 2014/03/10 10:23:39 raft.go:497: Follower State : HeartBeat Received from '\x00' 
-Log: 2014/03/10 10:23:39 raft.go:507: Follower State : LeaderIsActive
-Log: 2014/03/10 10:23:39 raft.go:469: Follower State : election status : false 
-Log: 2014/03/10 10:23:40 raft.go:490: Follower State : No message arrived
-Log: 2014/03/10 10:23:40 raft.go:469: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:284: ============= CONFIGURATION =================
+Log: 2014/03/11 10:54:34 raft.go:285: 	 PID : 1 
+Log: 2014/03/11 10:54:34 raft.go:286: 	 ELECTION TIMEOUT : 2s 
+Log: 2014/03/11 10:54:34 raft.go:287: 	 DATA DIR : ./data 
+Log: 2014/03/11 10:54:34 raft.go:288: 	 HEART BEAT INTERVAL 2s 
+Log: 2014/03/11 10:54:34 raft.go:428: Follower State : Checking Leader tacker state
+Log: 2014/03/11 10:54:34 raft.go:434: Follower State : Leader Tracker is blocked, sending enable signal 
+Log: 2014/03/11 10:54:34 raft.go:383: Leader Tracker : waiting for enable signal
+Log: 2014/03/11 10:54:34 raft.go:385: Leader Tracker : Got Enable Signal
+Log: 2014/03/11 10:54:34 raft.go:389: Leader Tracker : Started , Sending back notification
+Log: 2014/03/11 10:54:34 raft.go:395: Timeout duration 3.6162s
+Log: 2014/03/11 10:54:34 raft.go:447: Follower State : Follow is Activated
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {2 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {3 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {4 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {5 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {6 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {7 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {8 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {9 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {10 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {11 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {12 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {13 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {14 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {15 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {16 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {17 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {18 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {19 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {20 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {21 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {22 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {23 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {24 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {25 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {26 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {27 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {28 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {29 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {30 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {31 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {32 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {33 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {34 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {35 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {36 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {37 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {38 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {39 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {40 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {41 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {42 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {43 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {44 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {45 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {46 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {47 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {48 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {49 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {50 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {51 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {52 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {53 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {54 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {55 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {56 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {57 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {58 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {59 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {60 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {61 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {62 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {63 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {64 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {65 true}}}
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {66 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {67 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {68 true}}}
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:34 raft.go:543: Follower State : Request Vote received with higher term
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {69 true}}}
+Log: 2014/03/11 10:54:34 raft.go:551: Follower State :Giving Vote
+Log: 2014/03/11 10:54:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:34 node.go:352: {2 0 2 [] {3 {70 true}}}
+Log: 2014/03/11 10:54:35 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:35 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:36 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:36 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:36 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:36 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:36 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:37 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:37 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:38 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:38 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:38 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:38 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:38 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:38 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:38 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:38 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:39 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:39 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:40 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:40 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:40 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:40 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:40 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:41 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:41 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:42 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:42 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:42 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:42 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:42 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:42 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:42 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:42 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:42 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:42 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:43 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:43 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:44 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:44 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:44 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:44 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:44 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:45 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:45 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:46 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:46 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:46 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:46 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:46 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:46 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:46 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:46 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:46 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:46 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:47 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:47 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:48 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:48 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:48 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:48 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:48 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:49 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:49 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:49 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:49 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:49 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:50 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:50 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:50 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:50 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:50 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:50 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:50 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:51 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:51 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:52 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:52 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:52 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:52 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:52 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:53 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:53 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:53 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:53 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:53 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:54 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:54 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:54 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:54 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:54 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:55 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:55 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:56 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:56 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:56 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:56 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:56 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:54:56 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:56 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:56 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:56 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:56 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:57 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:54:57 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:58 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:58 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:54:58 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:54:58 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:58 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:54:59 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:54:59 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:54:59 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:54:59 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:54:59 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:00 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:00 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:00 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:00 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:00 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:00 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:00 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:01 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:01 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:02 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:02 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:02 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:02 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:02 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:02 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:02 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:02 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:03 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:03 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:04 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:04 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:04 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:04 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:04 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:05 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:05 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:05 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:05 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:05 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:06 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:06 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:06 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:06 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:06 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:07 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:07 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:08 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:08 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:08 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:08 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:08 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:09 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:09 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:09 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:09 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:09 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:10 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:10 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:10 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:10 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:10 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:10 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:10 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:11 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:11 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:12 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:12 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:12 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:12 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:12 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:12 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:12 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:12 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:12 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:12 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:13 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:13 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:14 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:14 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:14 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:14 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:14 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:15 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:15 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:16 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:16 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:16 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:16 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:16 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:16 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:16 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:16 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:16 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:16 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:17 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:17 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:18 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:18 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:18 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:18 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:18 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:19 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:19 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:19 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:19 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:19 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:20 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:20 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:20 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:20 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:20 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:20 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:20 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:21 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:21 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:22 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:22 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:22 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:22 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:22 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:22 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:22 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:22 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:23 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:23 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:24 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:24 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:24 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:24 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:24 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:25 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:25 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:25 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:25 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:25 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:26 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:26 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:26 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:26 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:26 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:27 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:27 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:28 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:28 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:28 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:28 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:28 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:28 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:29 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:29 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:30 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:30 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:30 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:30 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:30 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:31 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:31 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:31 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:31 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:31 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:32 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:32 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:32 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:32 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:32 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:33 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:33 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:34 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:34 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:34 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:34 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:34 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:35 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:35 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:36 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:36 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:36 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:36 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:36 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:37 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:37 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:37 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:37 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:37 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:38 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:38 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:38 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:38 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:38 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:39 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:39 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:40 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:40 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:40 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:40 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:40 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:40 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:40 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:41 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:41 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:41 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:41 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:41 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:42 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:42 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:42 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:42 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:42 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:42 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:42 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:43 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:43 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:44 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:44 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:44 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:44 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:44 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:44 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:44 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:44 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:44 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:44 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:45 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:45 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:46 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:46 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:46 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:46 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:46 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:47 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:47 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:48 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:48 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:48 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:48 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:48 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:48 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:48 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:48 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:48 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:48 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:49 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:49 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:50 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:50 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:50 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:50 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:50 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:51 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:51 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:51 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:51 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:51 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:52 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:52 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:52 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:52 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:52 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:52 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:52 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:53 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:53 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:54 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:54 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:54 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:54 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:54 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:54 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:54 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:54 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:55 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:55 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:56 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:56 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:56 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:56 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:56 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:57 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:57 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:58 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:58 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:55:58 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:55:58 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:58 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:55:58 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:55:58 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:55:58 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:55:58 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:55:58 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:55:59 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:55:59 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:00 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:00 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:00 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:00 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:00 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:01 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:01 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:01 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:01 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:01 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:02 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:02 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:02 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:02 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:02 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:03 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:03 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:04 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:04 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:04 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:04 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:04 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:05 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:05 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:05 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:05 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:05 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:06 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:06 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:06 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:06 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:06 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:07 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:07 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:08 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:08 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:08 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:08 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:08 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:08 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:08 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:08 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:08 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:08 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:09 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:09 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:10 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:10 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:10 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:10 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:10 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:11 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:11 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:11 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:11 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:11 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:12 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:12 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:12 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:12 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:12 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:12 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:12 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:13 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:13 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:14 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:14 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:14 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:14 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:14 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:14 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:14 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:14 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:14 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:14 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:15 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:15 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:16 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:16 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:16 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:16 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:16 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:17 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:17 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:17 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:17 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:17 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:18 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:18 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:18 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:18 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:18 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:19 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:19 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:20 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:20 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:20 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:20 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:20 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:21 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:21 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:21 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:21 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:21 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:22 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:22 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:22 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:22 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:22 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:23 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:23 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:24 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:24 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:24 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:24 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:24 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:25 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:25 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:25 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:25 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:25 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:26 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:26 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:26 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:26 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:26 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:27 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:27 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:28 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:28 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:28 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:28 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:28 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:28 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:29 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:29 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:30 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:30 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:30 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:30 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:30 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:31 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:31 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:31 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:31 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:31 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:32 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:32 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:32 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:32 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:32 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:33 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:33 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:34 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:34 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:34 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:34 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:34 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:34 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:35 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:35 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:36 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:36 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:36 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:36 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:36 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:37 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:37 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:37 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:37 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:37 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:38 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:38 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:38 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:38 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:38 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:38 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:39 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:39 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:40 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:40 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:40 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:40 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:40 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:40 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:40 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:40 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:40 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:40 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:41 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:41 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:42 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:42 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:42 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:42 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:42 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:43 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:43 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:44 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:44 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:44 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:44 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:44 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:44 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:44 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:44 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:44 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:44 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:45 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:45 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:46 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:46 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:46 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:46 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:46 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:47 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:47 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:47 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:47 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:47 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:48 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:48 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:48 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:48 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:48 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:48 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:48 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:49 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:49 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:50 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:50 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:50 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:50 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:50 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:50 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:50 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:50 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:50 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:50 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:51 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:51 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:52 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:52 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:52 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:52 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:52 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:53 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:53 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:53 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:53 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:53 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:54 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:54 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:54 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:54 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:54 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:54 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:55 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:55 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:56 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:56 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:56 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:56 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:56 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:57 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:57 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:56:57 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:56:57 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:57 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:56:58 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:58 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:58 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:56:58 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:56:58 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:56:58 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:56:58 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:56:59 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:56:59 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:00 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:00 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:00 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:00 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:00 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:01 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:01 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:01 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:01 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:01 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:02 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:02 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:02 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:02 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:02 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:02 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:03 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:03 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:04 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:04 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:04 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:04 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:04 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:05 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:05 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:05 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:05 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:05 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:06 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:06 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:06 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:06 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:06 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:06 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:07 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:07 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:08 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:08 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:08 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:08 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:08 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:08 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:08 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:09 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:09 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:09 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:09 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:09 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:10 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:10 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:10 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:10 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:10 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:10 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:10 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:11 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:11 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:12 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:12 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:12 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:12 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:12 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:13 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:13 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:13 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:13 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:13 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:14 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:14 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:14 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:14 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:14 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:14 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:14 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:15 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:15 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:16 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:16 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:16 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:16 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:16 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:17 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:17 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:17 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:17 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:17 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:18 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:18 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:18 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:18 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:18 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:18 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:19 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:19 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:20 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:20 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:20 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:20 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:20 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:21 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:21 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:21 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:21 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:21 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:22 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:22 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:22 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:22 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:22 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:22 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:23 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:23 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:24 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:24 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:24 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:24 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:24 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:25 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:25 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:25 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:25 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:25 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:26 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:26 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:26 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:26 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:26 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:26 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:27 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:27 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:28 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:28 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:28 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:28 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:28 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:28 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:28 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:28 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:29 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:29 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:30 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:30 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:30 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:30 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:30 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:31 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:31 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:32 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:32 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:32 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:32 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:32 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:32 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:32 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:32 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:32 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:33 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:33 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:34 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:34 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:34 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:34 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:34 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:35 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:35 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:36 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:36 raft.go:521: Follower State: Got Vote Request from  2
+Log: 2014/03/11 10:57:36 raft.go:526: Follower State : Request With Lower term
+Log: 2014/03/11 10:57:36 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:36 node.go:352: {2 0 2 [] {3 {70 false}}}
+Log: 2014/03/11 10:57:36 raft.go:479: Follower State :  message arrived
+Log: 2014/03/11 10:57:36 raft.go:483: Follower State : HeartBeat Received from '\x02' 
+Log: 2014/03/11 10:57:36 raft.go:493: Follower State : LeaderIsActive
+Log: 2014/03/11 10:57:36 raft.go:455: Follower State : election status : false 
+Log: 2014/03/11 10:57:36 node.go:352: {2 0 2 [] {4 {70 true}}}
+Log: 2014/03/11 10:57:37 raft.go:476: Follower State : No message arrived
+Log: 2014/03/11 10:57:37 raft.go:455: Follower State : election status : false 

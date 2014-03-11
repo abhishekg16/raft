@@ -1,5 +1,13 @@
 package raft
 
+/*
+Raft package implement the raft consensus algorithm. This algorithm is used for making concensus in
+distributed system. The algorithm gaurantee that there would be only one leader a time.
+This implementation runs three go routine one for rach leader , follower and candidate states.
+On the basis of the incoming signal an the timer events the consensus algorithm's state
+is switched between these threds
+*/
+
 import (
 	"encoding/json"
 	cluster "github.com/abhishekg16/cluster"
@@ -27,12 +35,12 @@ const (
 
 // These constant will identify the types of the Messages s
 const (
-	HEARTBEAT    = iota
-	LOGMESSAGE   = iota
-	VOTEREQUEST  = iota
-	VOTERESPONSE = iota
+	HEARTBEAT    = iota // Repesent the heart beat message
+	LOGMESSAGE   = iota // Repesent the log  message
+	VOTEREQUEST  = iota // Repesent the vote request message
+	VOTERESPONSE = iota // Repesent the vote reponse message
 	RESPONSE     = iota // This message is used for response of append entry
-	SHUTDOWN     = iota
+	SHUTDOWNRAFT = iota
 )
 
 // Differnet Possible States of the Raft System
@@ -46,24 +54,28 @@ const (
 //debug which provide the differt kind of facilities
 var DEBUG int
 
+// This struct keeps the details of the blocking request
 type blockStatus struct {
 	isBlock  bool
 	bLock    sync.Mutex
 	duration time.Duration
 }
 
+// return the true if blocking is true
 func (b *blockStatus) get() bool {
 	defer b.bLock.Unlock()
 	b.bLock.Lock()
 	return b.isBlock
 }
 
+// set blocking true
 func (b *blockStatus) set(val bool) {
 	defer b.bLock.Unlock()
 	b.bLock.Lock()
 	b.isBlock = val
 }
 
+//
 func (b *blockStatus) setDuration(d time.Duration) {
 	b.duration = d
 }
@@ -71,14 +83,6 @@ func (b *blockStatus) setDuration(d time.Duration) {
 func (b *blockStatus) getDuration() time.Duration {
 	return b.duration
 }
-
-/*
-// Message struct defines the outline of Message Type
-type Message struct {
-     MsgCode int  // Message Code will identify the type of msg being passed
-	 Msg interface{}  // The actual Message
-}
-*/
 
 // This Token would be used for AppendEntries/HeartBeat Token
 // Even though the Message Code would be able to identify the Actual Purpose of the Token
@@ -115,11 +119,14 @@ type leaderStatus struct {
 	votedFor    int  // -1 indicate not voted
 }
 
+// this stuct represent the data stored on the disk in persistent state
+// This would be changed when logging would be added
 type persistentData struct {
 	Term     int64
 	VotedFor int
 }
 
+// This method reads the last persistent data data on the disk
 func (c consensus) readDisk() (bool, error, persistentData) {
 	msg, err := ioutil.ReadFile(c.filePath)
 	if err != nil {
@@ -133,6 +140,7 @@ func (c consensus) readDisk() (bool, error, persistentData) {
 	return true, nil, data
 }
 
+// This method writes the term on the disk
 func (c consensus) writeTerm(currentTerm int64) (bool, error) {
 	ok, err, data := c.readDisk()
 	if ok == false {
@@ -142,6 +150,7 @@ func (c consensus) writeTerm(currentTerm int64) (bool, error) {
 	return true, nil
 }
 
+// this method write the voteFor variable on the disk
 func (c consensus) writeVotedFor(votedFor int) (bool, error) {
 	ok, err, data := c.readDisk()
 	if ok == false {
@@ -174,6 +183,7 @@ func (c consensus) writeAll(currentTerm int64, votedFor int) (bool, error) {
 	return true, err
 }
 
+// Consensun struct have all the fields related to raft instance
 type consensus struct {
 	pid int
 
@@ -234,10 +244,12 @@ type consensus struct {
 	// all go rotuine will check for this
 }
 
+// Term return the current term
 func (c *consensus) Term() int64 {
 	return c.currentTerm
 }
 
+// IsLeader return true if the current raft instance is leader
 func (c *consensus) IsLeader() bool {
 	if c.lStatus.status == true && c.lStatus.pidOfLeader == c.pid {
 		return true
@@ -245,6 +257,7 @@ func (c *consensus) IsLeader() bool {
 	return false
 }
 
+// Pid returns the Pid of the current raft instance
 func (c *consensus) Pid() int {
 	return c.pid
 }
@@ -258,11 +271,14 @@ func (c * cencensus) Block(duration time.Duration) {
 }
 */
 
+// Shutdown stops all the threds
 func (c *consensus) Shutdown() {
+	c.logger.Printf("Raft %v, Shutdown is called", c.pid)
 	c.server.Shutdown()
 	c.isShutdownSignal = true
 }
 
+// Print the Configuration of the raft instance
 func (c *consensus) GetConfiguration() {
 	c.logger.Println("============= CONFIGURATION =================")
 	c.logger.Printf("\t PID : %v \n", c.pid)
@@ -271,6 +287,7 @@ func (c *consensus) GetConfiguration() {
 	c.logger.Printf("\t HEART BEAT INTERVAL %v \n", c.heartBeatInterval)
 }
 
+// this method check the server inbox channel and return the input Envelope to the coller
 func (c *consensus) inbox() *cluster.Envelope {
 	c.mutexInbox.Lock()
 	defer c.mutexInbox.Unlock()
@@ -400,6 +417,7 @@ func getMessage(env *cluster.Envelope) *cluster.Message {
 	return &tMsg
 }
 
+// follower method implements the follower state
 func (c *consensus) follower() {
 	for {
 		<-c.in_follower
@@ -549,6 +567,7 @@ const (
 	STOPPED       = iota
 )
 
+// follower method implements the candidate state
 func (c *consensus) candidate() {
 	for {
 		<-c.in_candidate
@@ -699,6 +718,7 @@ func (c *consensus) candidate() {
 	}
 }
 
+// follower method implements the leader state
 func (c *consensus) leader() {
 	for {
 		<-c.in_leader
@@ -816,6 +836,7 @@ func (c *consensus) leader() {
 	}
 }
 
+// sentMessage send the message to underlying cluster
 func (c *consensus) sendMessage(env *cluster.Envelope) bool {
 	c.mutexOutbox.Lock()
 	c.server.Outbox() <- env
@@ -823,6 +844,7 @@ func (c *consensus) sendMessage(env *cluster.Envelope) bool {
 	return true
 }
 
+// getNewVoteResponseToken return a new VoteRequestToken
 func (c *consensus) getNewVoteResponseToken(flag bool) *cluster.Message {
 	vote := VoteResponseToken{c.currentTerm, flag}
 	replyMsg := cluster.Message{MsgCode: VOTERESPONSE, Msg: vote}
@@ -835,6 +857,7 @@ func (c *consensus) getNewResponseToken(flag bool) *cluster.Message {
 	return &replyMsg
 }
 
+// initialize the raft instance
 func (c *consensus) initialize(pid int, path string) (bool, error) {
 	ok, err := c.parse(pid, path)
 	if !ok {
@@ -860,7 +883,7 @@ func (c *consensus) initialize(pid int, path string) (bool, error) {
 	//c.server.SetLogger(c.logger)
 
 	sPath := path + "/servers.json"
-	c.server, err = cluster.New(pid, sPath)
+	c.server, err = cluster.New(pid, sPath, c.logger)
 
 	c.GetConfiguration()
 

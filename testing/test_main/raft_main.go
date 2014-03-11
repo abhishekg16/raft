@@ -33,18 +33,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	testCluster, err := cluster.New(f, "./conf/TestConfig.json")
+	testCluster, err := cluster.New(f, "./conf/TestConfig.json",nil)
 	if err != nil {
 		fmt.Printf("RAFT:The Test server is not stated at %v\n", f)
 		fmt.Println(err)
 	}
-	fmt.Printf("RAFT:The Test server stated at %v\n", f)
+	//fmt.Printf("RAFT:The Test server stated at %v\n", f)
 LOOP:
 	for {
 		select {
 		case env := <-testCluster.Inbox():
-			fmt.Printf("RAFT:The Test server GOT message  %v\n", f)
-			fmt.Printf("RAFT %v : %v\n", f, env)
+			//fmt.Printf("RAFT:The Test server GOT message  %v\n", f)
+			//fmt.Printf("RAFT %v : %v\n", f, env)
 			msg := env.Msg
 			if msg.MsgCode == raft.HEARTBEAT {
 				lead := rObj.IsLeader()
@@ -57,10 +57,11 @@ LOOP:
 				replyToken := raft.AppendEntriesToken{Term: term, LeaderId: cLeader}
 				replyMsg := cluster.Message{MsgCode: raft.HEARTBEAT, Msg: replyToken}
 				replyEnv := cluster.Envelope{Pid: env.Pid, MsgType: cluster.CTRL, Msg: replyMsg}
-				fmt.Println("Sending Back %v", env)
+				//fmt.Println("Sending Back %v", env)
 				testCluster.Outbox() <- &replyEnv
 			}
-			if msg.MsgCode == raft.SHUTDOWN {
+			if msg.MsgCode == raft.SHUTDOWNRAFT {
+				//fmt.Printf("RAFT:The Test gott Shutdown request  %v\n", f)
 				rObj.Shutdown()
 				time.Sleep(1 * time.Second)
 				testCluster.Shutdown()
@@ -68,5 +69,7 @@ LOOP:
 			}
 		}
 	}
+	testCluster.Shutdown()
+	//fmt.Printf("RAFT %v: OFF\n", f)
 
 }
