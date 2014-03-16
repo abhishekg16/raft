@@ -2,7 +2,7 @@ package raft
 
 import "testing"
 import "os/exec"
-//import "log"
+import "log"
 //import "os"
 import "time"
 import "strconv"
@@ -168,8 +168,9 @@ func TestRaft_TS1(t *testing.T) {
 	//log.Println("killing Raft instances")
 
 	for i := 0; i < NOFSERVER; i++ {
-		sendShutdown(testClusterObj,i)
-		//rInst[i].Process.Kill()
+		//sendShutdown(testClusterObj,i)
+		log.Println("Killing %v",i)
+		rInst[i].Process.Kill()
 	}
 	time.After(3 * time.Second)
 	testCluster.Shutdown()

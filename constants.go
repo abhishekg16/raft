@@ -1,0 +1,39 @@
+package raft
+
+const (
+	INFO = iota
+	HIGH = iota
+	WARNING = iota
+	FINE = iota
+	FINEST = iota
+	NOLOG = -1
+)
+
+
+// FILENAME is the name of the file which will store the persistent data
+// related to the current raft instance
+
+
+
+
+const (
+	FILENAME    = "book"
+	LOGFILENAME = "log"
+)
+
+// These constant will identify the types of the Messages s
+const (
+	APPEND_ENTRY = iota
+	LOGMESSAGE   = iota // Repesent the log  message
+	VOTEREQUEST  = iota // Repesent the vote request message
+	VOTERESPONSE = iota // Repesent the vote reponse message
+	RESPONSE     = iota // This message is used for response of append entry
+	SHUTDOWNRAFT = iota
+)
+
+// Differnet Possible States of the Raft System
+const (
+	LEADER    = iota
+	CANDIDATE = iota
+	FOLLOWER  = iota
+)
