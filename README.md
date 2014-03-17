@@ -31,11 +31,11 @@ TestConfig.json this file contains the configuration parameters for the test clu
 
 ###API
 
-Raft package provide a New method which take myid ( of the local server),  path ( path of the configuration files ),  mode ( specify the mode of start, 0=> normal mode, 1=> debug mode). and return a pointer to the new raft instance.
+Raft package provide a New method which take myid ( of the local server),  path ( path of the configuration files ),   server  (serverInstance (set server logger before sending),  isRestart  (specify whether it is a restart or fresh start of raft isntance) and return a pointer to the new raft instance.
 
 {
 
-	func NewRaft(myid int, path string, mode int) (*consensus, bool, error) 
+	func NewRaft(myid int, path string, logLevel int, server *cluster.Server, isRestart bool) (*consensus, bool, error) 
 
 }
 
@@ -49,13 +49,10 @@ type Raft interface {
 
     Pid() int		// return the Pid id current Raft instance
     
-    // Only available in DEBUG mode
+
     Block(duration time.Duration) bool // Block the raft instance for specific duration
 
-    Resume() bool // Resume the blocked raft instance
-
     Shutdown() // Shutdown the raft instance 
-
 }
  
 
@@ -64,7 +61,7 @@ type Raft interface {
 The raft module depends on the cluster for underlying communication. Which internally  usage the Zeromq. 
 
 1. To build the project you need to install the zmq4 golang binding. Binding are present at https://github.com/pebbe/zmq4
-2. Get Raft from git hub. "go git github.com/abhishekg16/raft"
+2. Get Raft from git hub. "go get github.com/abhishekg16/raft"
 3. Go to the raft/ "go install".
 4. Go to raft directory and give command "go test"
 

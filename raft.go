@@ -963,6 +963,7 @@ LOOP:
 //	myid : of the local server
 //  path : path of the configuration files
 //  server : serverInstance (set server logger before sending)
+// isRestart : specify whether it is a restart or fresh start of raft isntance
 
 func NewRaft(myid int, path string, logLevel int, server *cluster.Server, isRestart bool) (*consensus, bool, error) {
 	var c consensus
