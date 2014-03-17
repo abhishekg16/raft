@@ -30,35 +30,6 @@ import (
 //debug which provide the differt kind of facilities
 var LOG int
 
-// This struct keeps the details of the blocking request
-type blockStatus struct {
-	isBlock  bool
-	bLock    sync.Mutex
-	duration time.Duration
-}
-
-// return the true if blocking is true
-func (b *blockStatus) get() bool {
-	defer b.bLock.Unlock()
-	b.bLock.Lock()
-	return b.isBlock
-}
-
-// set blocking true
-func (b *blockStatus) set(val bool) {
-	defer b.bLock.Unlock()
-	b.bLock.Lock()
-	b.isBlock = val
-}
-
-//
-func (b *blockStatus) setDuration(d time.Duration) {
-	b.duration = d
-}
-
-func (b *blockStatus) getDuration() time.Duration {
-	return b.duration
-}
 
 // This Token would be used for AppendEntries/HeartBeat Token
 // Even though the Message Code would be able to identify the Actual Purpose of the Token
@@ -198,10 +169,11 @@ type consensus struct {
 
 	mutexOutbox sync.Mutex // mutex fox server out channel
 	mutexInbox  sync.Mutex // mutex lock for server in channel
-
-	blockStat blockStatus
-
 	msgId int64
+	
+	shutdownChan chan bool
+	
+	delayChan chan time.Duration
 }
 
 // Term return the current term
@@ -223,20 +195,24 @@ func (c *consensus) Pid() int {
 }
 
 
-/*
-func (c * cencensus) Block(duration time.Duration) {
-	if (DEBUG == 0)
-		return
-	c.blockStat.setDuration(duration)
-	c.blockStat.set(true)
+func (c *consensus) Delay (delay time.Duration) {
+	c.delayChan <- delay
 }
-*/
+
+
 
 // Shutdown stops all the threds
 func (c *consensus) Shutdown() {
-	c.logger.Printf("Raft %v, Shutdown is called", c.pid)
-	c.server.Shutdown()
+	if LOG >= FINE {
+		c.logger.Printf("Raft %v, Shutdown is called", c.pid)
+	}
+	c.shutdownChan <- true
+	<-c.shutdownChan
+	if LOG >= HIGH {
+		c.logger.Printf("Raft %v, Shutdown", c.pid)
+	} 
 }
+
 
 func (c *consensus) getMsgId() int64 {
 	c.msgId++
@@ -275,14 +251,14 @@ func (c *consensus) inbox() *cluster.Envelope {
 // parse function takes it's own id and the path to the directory containg all the configuration files
 func (c *consensus) parse(ownId int, path string) (bool, error) {
 	if LOG >= FINE {
-		c.logger.Printf("Raft %v: Parsing The Configuration File in raft\n",c.pid)
+		log.Printf("Raft %v: Parsing The Configuration File in raft\n",c.pid)
 	}
 	path = path + "/raft.json"
 	file, err := os.Open(path)
 	defer file.Close()
 	if err != nil {
 		if LOG >= INFO {
-			c.logger.Printf("Raft %v: Parsing Failed %v\n",c.pid, err)
+			log.Printf("Raft %v: Parsing Failed %v\n",c.pid, err)
 		}
 		return false, err
 	}
@@ -291,7 +267,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 		var v map[string]interface{}
 		if err := dec.Decode(&v); err == io.EOF || len(v) == 0 {
 			if LOG >= FINE {
-				c.logger.Printf("Raft %v,Parsing Done !!!\n",c.pid)
+				log.Printf("Raft %v,Parsing Done !!!\n",c.pid)
 			}
 			return true, nil
 		} else if err != nil {
@@ -308,14 +284,14 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 			c.dataDir, ok = v["Value"].(string)
 			if ok == false {
 				if LOG >= INFO {
-					c.logger.Printf("Raft %v: Error : Can not retrieve dataDir \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve dataDir \n",c.pid)
 				}
 			}
 		} else if prop == "Etimeout" {
 			t_timeout, ok := v["Value"].(float64)
 			if ok == false {
 				if LOG >= INFO {
-					c.logger.Printf("Raft %v: Error : Can not retrieve Eelection Timeout \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve Eelection Timeout \n",c.pid)
 				}
 			} else { 
 				c.eTimeout = time.Duration(t_timeout) * time.Millisecond
@@ -324,7 +300,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 			t_hfre, ok := v["Value"].(float64)
 			if ok == false {
 				if LOG >= INFO {
-					c.logger.Printf("Raft %v: Error : Can not retrieve href \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve href \n",c.pid)
 				}
 			} else {
 				c.heartBeatInterval = time.Duration(t_hfre) * time.Millisecond
@@ -333,7 +309,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 			c.logDir, ok  = v["Value"].(string) 
 			if ok == false {
 				if LOG >= INFO {
-					c.logger.Printf("Raft %v: Error : Can not retrieve logDir \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve logDir \n",c.pid)
 				}
 			}
 		}
@@ -345,7 +321,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 // And the must be processes at the higher priority
 // Broadcast Message are not the acknowledged
 
-func (c *consensus) sendHeartBeats( in chan bool, out chan bool ) {
+func (c *consensus) sendHeartBeats( in chan bool, out chan bool, delayChan chan time.Duration ) {
 	// TODO : Implement multicast functionality
 	heartBeat := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid}
 	msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: heartBeat}
@@ -363,6 +339,11 @@ func (c *consensus) sendHeartBeats( in chan bool, out chan bool ) {
 			}
 			out <- true
 			return
+		case delay := <- c.delayChan:
+				if LOG >= HIGH  {
+					c.logger.Printf("Heart Beat Manager :Introducing Delay %v\n",delay)
+				}
+				time.Sleep(delay)
 		}
 	}
 }
@@ -424,8 +405,8 @@ func (c *consensus) follower() int {
 		c.logger.Printf("Raft %v: Follower State : Follow is Activated\n",c.pid)
 	}
 	
-	in_leaderTracker := make (chan bool, 1)
-	out_leaderTracker := make (chan bool, 1)
+	in_leaderTracker := make (chan bool, 2)
+	out_leaderTracker := make (chan bool, 2)
 	go c.leaderTracker(in_leaderTracker,out_leaderTracker)
 	
 	for {
@@ -541,6 +522,12 @@ func (c *consensus) follower() int {
 				}
 			case <-out_leaderTracker:
 				return CANDIDATE
+			case <-c.shutdownChan: 
+				in_leaderTracker <- false
+				if LOG >= HIGH  {
+						c.logger.Printf("Follower State : Stopped\n")
+					} 
+				return STOP 
 			}
 	}
 }
@@ -651,6 +638,7 @@ func (c *consensus) candidate() int {
 						if LOG >= HIGH {
 							c.logger.Printf("Candidate State : Got a vote Response from %v\n", env.Pid)
 						}
+						c.logger.Printf("%+v\n",data)
 						term := int64(data.Term)
 						voteGranted := data.VoteGranted
 						if term < c.currentTerm {
@@ -663,6 +651,7 @@ func (c *consensus) candidate() int {
 							if ok == false {
 								voteResponseMap[env.Pid] = true
 								voteCount++
+								c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
 								if LOG >= HIGH {
 									c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
 								}
@@ -697,6 +686,12 @@ func (c *consensus) candidate() int {
 								c.logger.Println("Candidate State : Election Timeout restart Election")
 					}
 					return CANDIDATE
+				case <-c.shutdownChan:
+					in_leaderTracker <- false
+					if LOG >= HIGH  {
+						c.logger.Printf("Candiate State : Stopped\n")
+					}
+					return STOP			
 			}
 		}
 }
@@ -709,7 +704,8 @@ func (c *consensus) leader() int {
 		// TODO : Hoe to ensure that the heart beat is send at higher priority after and interval: Critical to system
 		out_heartBeatManager := make (chan bool, 1)
 		in_heartBeatManager := make (chan bool, 1)
-		go c.sendHeartBeats(in_heartBeatManager, out_heartBeatManager )
+		delay_heartBeatManager := make(chan time.Duration,1)
+		go c.sendHeartBeats(in_heartBeatManager, out_heartBeatManager, delay_heartBeatManager)
 		
 		c.lStatus.status = true
 		c.lStatus.pidOfLeader = c.pid
@@ -719,12 +715,12 @@ func (c *consensus) leader() int {
 				msg := getMessage(env)
 				switch {
 				case msg.MsgCode == APPEND_ENTRY:
-					if LOG >= HIGH {
-						c.logger.Println("Leader State : Received heart beat")
-					}
 					data, ok  := (msg.Msg).(AppendEntriesToken)
 					if LOG >= INFO && ok == false {
 						c.logger.Println("Leader State : Mismatach in MsgCode and MsgToken")
+					}
+					if LOG >= HIGH {
+						c.logger.Printf("Leader State : Received heart beat from %v",data.LeaderId)
 					}
 					term := int64(data.Term)
 					if c.currentTerm < term {
@@ -746,57 +742,70 @@ func (c *consensus) leader() int {
 						c.logger.Println("Leader State : Receive heart beat with lower term")
 						c.sendNewResponseToken(env.Pid,false)
 					}
-			case msg.MsgCode == RESPONSE:
-				data, ok := (msg.Msg).(ResponseToken)
-				if ok == false {
-					if LOG >= INFO {
-						c.logger.Println("Leader State : ERROR : MsgCode and Message token mismatech")
+				case msg.MsgCode == RESPONSE:
+					data, ok := (msg.Msg).(ResponseToken)
+					if ok == false {
+						if LOG >= INFO {
+							c.logger.Println("Leader State : ERROR : MsgCode and Message token mismatech")
+						}
 					}
+					term := int64(data.Term)
+					if c.currentTerm <= term && data.Success == false {
+						c.logger.Println("Leader State : Got Negative hB Response")
+						c.logger.Println("Leader State : Downgrading to follower")
+						in_heartBeatManager <- true
+						<- out_heartBeatManager
+						return FOLLOWER
+					} else {
+						//c.logger.Println("Leader State : Got Positive HB Response")
+					}
+	
+				case msg.MsgCode == VOTEREQUEST:
+					data := (msg.Msg).(VoteRequestToken)
+					term := int64(data.Term)
+					if LOG >= HIGH  {
+						c.logger.Printf("Leader State :Leader received voteRequest from %v\n", data.CandidateId)
+					}
+					if c.currentTerm > term {
+						if LOG >= HIGH {
+							c.logger.Println("Leader State : The received request have less term")
+							c.logger.Println("Leader State : Sending Negative Reply")
+						}
+						c.sendNewVoteResponseToken(env.Pid,false)
+					} else if c.currentTerm == term {
+						if LOG >= HIGH {
+							c.logger.Println("Leader State : Vote Request with equal term")
+							c.logger.Println("Leader State : Sending Negative Reply")
+						}
+						c.sendNewVoteResponseToken(env.Pid,false)
+					} else {
+						if LOG >= INFO {
+							c.logger.Println("Leader State : log length will decide")
+						}
+					}
+				case msg.MsgCode == VOTERESPONSE:
+					if LOG >= HIGH {
+						c.logger.Println("Got vote response.. rejecting")
+					}
+				default:
+					if LOG >= INFO {
+						c.logger.Println("Case Not handled")
+					}
+					os.Exit(0)
 				}
-				term := int64(data.Term)
-				if c.currentTerm <= term && data.Success == false {
-					c.logger.Println("Leader State : Got Negative hB Response")
-					c.logger.Println("Leader State : Downgrading to follower")
-					in_heartBeatManager <- true
-					<- out_heartBeatManager
-					return FOLLOWER
-				} else {
-					//c.logger.Println("Leader State : Got Positive HB Response")
-				}
-
-			case msg.MsgCode == VOTEREQUEST:
+			case delay := <- c.delayChan:
+				delay_heartBeatManager <-delay
 				if LOG >= HIGH  {
-					c.logger.Println("Leader State :Leader received voteRequest")
+					c.logger.Printf("Introducing Delay %v",delay)
 				}
-				data := (msg.Msg).(VoteRequestToken)
-				term := int64(data.Term)
-				if c.currentTerm > term {
-					if LOG >= HIGH {
-						c.logger.Println("Leader State : The received request have less term")
-						c.logger.Println("Leader State : Sending Negative Reply")
+				time.Sleep(delay)
+			case  <- c.shutdownChan:
+				in_heartBeatManager <- true
+				if LOG >= HIGH  {
+						c.logger.Printf("Leader State : Stopped\n")
 					}
-					c.sendNewVoteResponseToken(env.Pid,false)
-				} else if c.currentTerm == term {
-					if LOG >= HIGH {
-						c.logger.Println("Leader State : Vote Request with equal term")
-						c.logger.Println("Leader State : Sending Negative Reply")
-					}
-					c.sendNewVoteResponseToken(env.Pid,false)
-				} else {
-					if LOG >= INFO {
-						c.logger.Println("Leader State : log length will decide")
-					}
-				}
-			case msg.MsgCode == VOTERESPONSE:
-				if LOG >= HIGH {
-					c.logger.Println("Got vote response.. rejecting")
-				}
-			default:
-				if LOG >= INFO {
-					c.logger.Println("Case Not handled")
-				}
-				os.Exit(0)
-			}
+				return STOP
+				
 		}
 	}
 }
@@ -817,7 +826,7 @@ func (c *consensus) getNewVoteResponseToken(flag bool) *cluster.Message {
 }
 
 func (c* consensus) sendNewVoteResponseToken(pid int, flag bool) {
-	replyMsg := c.getNewVoteResponseToken(false)
+	replyMsg := c.getNewVoteResponseToken(flag)
 	//msgId = c.getMsgId()
 	replyEnv := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: *replyMsg}
 	c.sendMessage(replyEnv)
@@ -839,7 +848,17 @@ func ( c * consensus)sendNewResponseToken( pid int , flag bool ) {
 // initialize the raft instance
 func (c *consensus) initialize(pid int, path string, server *cluster.Server, isRestart bool) (bool, error) {
 	
+	
+	ok, err := c.parse(pid, path)
+	if ok == false { 
+		if (LOG >= INFO ) {
+			c.logger.Printf("Raft %v: Error : Parsing Failed, %v\n", c.pid, err)
+		}
+		return false, err
+	}
+	
 	logFileName := c.logDir + "/" + LOGFILENAME + strconv.Itoa(c.pid)
+	//log.Println(logFileName)
 	// TODO add Method to check the existance of log file 
 	file, err := os.Create(logFileName)
 	if err != nil {
@@ -853,14 +872,7 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	if LOG >= HIGH  { 		
 		c.logger.Printf("Raft %v: Intializing the Raft , Restart : %v\n", pid, isRestart )	
 	}
-
-	ok, err := c.parse(pid, path)
-	if ok == false { 
-		if (LOG >= INFO ) {
-			c.logger.Printf("Raft %v: Error : Parsing Failed, %v\n", c.pid, err)
-		}
-		return false, err
-	}
+	
 	
 	c.server = *server
 	c.GetConfiguration()
@@ -917,7 +929,8 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	// Leader Status
 	c.lStatus = leaderStatus{-1, 0 * time.Second, false, 0}
 	
-	c.blockStat.set(false)
+	c.delayChan = make (chan time.Duration, 2)
+	c.shutdownChan = make (chan bool, 0)
 	rand.Seed(int64(c.pid))
 	if LOG >= HIGH  { 		
 		c.logger.Printf("Raft %v: Intialion done\n", c.pid, )	
@@ -942,6 +955,8 @@ func (c* consensus)startRaft() {
 				state = c.candidate()
 			case state == LEADER:
 				state = c.leader()
+			case state == STOP: 
+				break LOOP
 			default :
 			if LOG >= INFO  {
 				c.logger.Printf("Raft %v: Invalid state : %v \n " ,state )
@@ -950,6 +965,7 @@ func (c* consensus)startRaft() {
 			break LOOP	
 		}
 	}
+	c.shutdownChan <- true
 }
 
 // New method takes the

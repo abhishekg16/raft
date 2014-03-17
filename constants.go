@@ -36,4 +36,5 @@ const (
 	LEADER    = iota
 	CANDIDATE = iota
 	FOLLOWER  = iota
+	STOP = iota
 )

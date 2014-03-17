@@ -1,32 +1,37 @@
 package raft 
 
 import "testing"
-cluster "github.com/abhishekg16/cluster"
+import cluster "github.com/abhishekg16/cluster"
+import "log"
+import "time"
 
 const (
-	NOFSERVER  = 1
-	NOFRAFT  = 1
-	SERVER_LOG_LEVEL = NOLOG
-	RAFT_LOG_LEVEL = HIGH 
+	NOFSERVER  = 3
+	NOFRAFT  = 3
+	SERVER_LOG_LEVEL = INFO
+	RAFT_LOG_LEVEL = FINE
 )
 
-func makeDummyServer(num int) ([]*server, error) {
-	s := make([]*server, num)
+func makeDummyServer(num int) ([]cluster.Server, error) {
+	s := make([]cluster.Server, num)
 	var err error
 	for i := 0; i < num; i++ {
-		s[i], err = New(i, "./conf/Config.json",nil,SERVER_LOG_LEVEL)
+		s[i], err = cluster.New(i, "./conf/servers.json",nil,SERVER_LOG_LEVEL)
 		if err != nil {
 			return nil, err
 		}
+		
 	}
 	return s, nil
 }
 
 
-func makeRaftInstanced(num int, []*server) ([]*consensus, ok., err ){
+func makeRaftInstances(num int,s []cluster.Server ) ([]*consensus, bool, error ){
 	r := make([]*consensus,num)
+	var ok bool
+	var err error
 	for i := 0 ; i < num ; i++ {
-		r[i], ok, err  = func NewRaft(i, "./conf", RAFT_LOG_LEVEL, s[i] ,false)
+		r[i], ok, err = NewRaft(i, "./conf", RAFT_LOG_LEVEL, &s[i] ,false)
 		if  ok == false {
 			log.Println("Error Occured : Can in instantiate Raft Instances")
 			return r, false , err 
@@ -35,9 +40,112 @@ func makeRaftInstanced(num int, []*server) ([]*consensus, ok., err ){
 	return r , true , nil
 }
 
+func checkLeaderShip(rObj []*consensus) (bool , int64) {
+	leaderCount := make (map[int64]int,0)
+	for i := 0 ; i < NOFRAFT ; i++ {
+		term := rObj[i].Term()
+		count := 0 
+		count, _  = leaderCount[term]
+		if ( rObj[i].IsLeader() == true ) {
+			count = count +1
+		} 
+		leaderCount[term] = count 
+	}
+	log.Println(leaderCount)
+	highestT := int64(0) 
+	for k , v := range leaderCount {
+		if k > highestT {
+			highestT = k
+		}
+		if ( v > 1 ) {
+			return false , highestT
+		} 
+	}
+	return true, highestT
+	
+}
 
-func TestRaft_TS1(t *testing.T) {
-	sObjs := makeDummyServer(NOFSERVER)
-	rObjs := makeRaftInstances(NOFRAFT)
-	time.Sleep(20* time.Second )
+func getLeaderInTerm(num int, t int64,r []*consensus) int {
+	for i := 0 ; i < num ; i++ {	
+		term := r[i].Term()
+		if term == t {
+			if (r[i].IsLeader()) {
+				return i
+			}
+		}
+	} 
+	return -1
+}
+
+func shutdownServer(num int,s []cluster.Server) {
+	for i := 0; i < num ; i++ {
+		s[i].Shutdown()
+	} 
+}
+
+func shutdownRaft(num int, r []*consensus) {
+	for i := 0 ; i < num ; i++ {
+		r[i].Shutdown()
+	}
+}
+
+func TestRaft_SingleLeaderInATerm(t *testing.T) {
+	sObjs, err := makeDummyServer(NOFSERVER) 
+	if err != nil  {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT,sObjs) 
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+	 
+	time.Sleep(15 * time.Second)
+	 ok ,_ = checkLeaderShip(rObj)
+	
+	if ( ok == false) {
+		t.Errorf("Multiple Leaders \n ")
+	}
+	
+	
+	shutdownServer(NOFSERVER,sObjs)
+	shutdownRaft(NOFSERVER,rObj)
+}
+
+
+
+
+func TestRaft_DelayIntroducedInLeader(t *testing.T) {
+	
+	sObjs, err := makeDummyServer(NOFSERVER) 
+	if err != nil  {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT,sObjs) 
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+	time.Sleep(10 * time.Second)
+	
+	ok , term := checkLeaderShip(rObj)
+	if ( ok == false ) {
+		t.Errorf("Multiple Leaders \n ")
+	}
+	leader := getLeaderInTerm(NOFRAFT,term,rObj)
+	if leader == -1 {
+		t.Errorf("No Leader Present in term \n ")
+	}
+	rObj[leader].Delay(5*time.Second)
+	
+	time.Sleep(30 * time.Second)
+	ok , _ = checkLeaderShip(rObj)
+	if ( ok == false ) {
+		t.Errorf("Multiple Leaders \n ")
+	}
+	
+	shutdownServer(NOFSERVER,sObjs)
+	shutdownRaft(NOFSERVER,rObj)
 }
