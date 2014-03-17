@@ -1,0 +1,9 @@
+Log: 00:44:32 raft.go:635: {Term:2 VoteGranted:true}
+Log: 00:44:32 raft.go:648: Candidate State : Vote Count 2 
+ 
+Log: 00:44:37 raft.go:748: Leader State : Got Negative hB Response
+Log: 00:44:37 raft.go:749: Leader State : Downgrading to follower
+Log: 00:44:42 raft.go:635: {Term:5 VoteGranted:true}
+Log: 00:44:42 raft.go:648: Candidate State : Vote Count 2 
+ 
+Log: 00:44:43 raft.go:736: Leader State : Receive heart beat with lower term

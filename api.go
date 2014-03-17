@@ -7,6 +7,6 @@ type Raft interface {
 	IsLeader() bool // return whether the current raft instance is Leader
 	Pid() int       // return the Pid id current Raft instance
 
-	Delay(time.Duration)     		// introduce delay in a leader 
-	Shutdown()                      // Shutdown the raft instance
+	Delay(time.Duration) // introduce delay in a leader
+	Shutdown()           // Shutdown the raft instance
 }

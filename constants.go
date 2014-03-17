@@ -1,20 +1,16 @@
 package raft
 
 const (
-	INFO = iota
-	HIGH = iota
+	INFO    = iota
+	HIGH    = iota
 	WARNING = iota
-	FINE = iota
-	FINEST = iota
-	NOLOG = -1
+	FINE    = iota
+	FINEST  = iota
+	NOLOG   = -1
 )
-
 
 // FILENAME is the name of the file which will store the persistent data
 // related to the current raft instance
-
-
-
 
 const (
 	FILENAME    = "book"
@@ -36,5 +32,5 @@ const (
 	LEADER    = iota
 	CANDIDATE = iota
 	FOLLOWER  = iota
-	STOP = iota
+	STOP      = iota
 )

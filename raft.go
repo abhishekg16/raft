@@ -3,9 +3,9 @@ package raft
 /*
 Raft package implement the raft consensus algorithm. This algorithm is used for making concensus in
 distributed system. The algorithm gaurantee that there would be only one leader a time.
-This implementation runs three go routine one for rach leader , follower and candidate states.
+This implementation runs three state one for rach leader , follower and candidate.
 On the basis of the incoming signal an the timer events the consensus algorithm's state
-is switched between these threds
+is switched between these states
 */
 
 import (
@@ -25,11 +25,9 @@ import (
 	"strconv"
 )
 
-
 // DEBUG variable will be setup to start server in
 //debug which provide the differt kind of facilities
 var LOG int
-
 
 // This Token would be used for AppendEntries/HeartBeat Token
 // Even though the Message Code would be able to identify the Actual Purpose of the Token
@@ -37,7 +35,7 @@ var LOG int
 type AppendEntriesToken struct {
 	Term     int64
 	LeaderId int
-	LogMsg 	interface{}
+	LogMsg   interface{}
 }
 
 // Response Token would be used for response of the AppendEntry/HeartBeat Token
@@ -78,13 +76,17 @@ type persistentData struct {
 func (c consensus) readDisk() (bool, error, persistentData) {
 	msg, err := ioutil.ReadFile(c.filePath)
 	if err != nil {
-		if LOG >= INFO { c.logger.Printf("Raft %v :Error : %v",c.pid, err)	}
+		if LOG >= INFO {
+			c.logger.Printf("Raft %v :Error : %v", c.pid, err)
+		}
 		return false, err, persistentData{}
 	}
 	var data persistentData
 	err = json.Unmarshal(msg, &data)
 	if err != nil {
-		if LOG >= INFO { c.logger.Printf("Raft %v :Error : %v",c.pid, err)	}
+		if LOG >= INFO {
+			c.logger.Printf("Raft %v :Error : %v", c.pid, err)
+		}
 		return false, err, persistentData{}
 	}
 	return true, nil, data
@@ -115,14 +117,14 @@ func (c consensus) writeAll(currentTerm int64, votedFor int) (bool, error) {
 	msg, err := json.Marshal(data)
 	if err != nil {
 		if LOG >= INFO {
-			c.logger.Println("Raft %v: Error : %v", c.pid ,err)
+			c.logger.Println("Raft %v: Error : %v", c.pid, err)
 		}
 		return false, err
 	}
 	file, err := os.OpenFile(c.filePath, os.O_RDWR, 755)
 	if err != nil {
 		if LOG >= INFO {
-			c.logger.Println("Raft %v: Error : %v", c.pid , err)
+			c.logger.Println("Raft %v: Error : %v", c.pid, err)
 		}
 		return false, err
 	}
@@ -137,7 +139,7 @@ func (c consensus) writeAll(currentTerm int64, votedFor int) (bool, error) {
 		}
 		return false, err
 	}
-	
+
 	return true, nil
 }
 
@@ -169,10 +171,10 @@ type consensus struct {
 
 	mutexOutbox sync.Mutex // mutex fox server out channel
 	mutexInbox  sync.Mutex // mutex lock for server in channel
-	msgId int64
-	
+	msgId       int64
+
 	shutdownChan chan bool
-	
+
 	delayChan chan time.Duration
 }
 
@@ -194,12 +196,9 @@ func (c *consensus) Pid() int {
 	return c.pid
 }
 
-
-func (c *consensus) Delay (delay time.Duration) {
+func (c *consensus) Delay(delay time.Duration) {
 	c.delayChan <- delay
 }
-
-
 
 // Shutdown stops all the threds
 func (c *consensus) Shutdown() {
@@ -210,9 +209,8 @@ func (c *consensus) Shutdown() {
 	<-c.shutdownChan
 	if LOG >= HIGH {
 		c.logger.Printf("Raft %v, Shutdown", c.pid)
-	} 
+	}
 }
-
 
 func (c *consensus) getMsgId() int64 {
 	c.msgId++
@@ -251,14 +249,14 @@ func (c *consensus) inbox() *cluster.Envelope {
 // parse function takes it's own id and the path to the directory containg all the configuration files
 func (c *consensus) parse(ownId int, path string) (bool, error) {
 	if LOG >= FINE {
-		log.Printf("Raft %v: Parsing The Configuration File in raft\n",c.pid)
+		log.Printf("Raft %v: Parsing The Configuration File in raft\n", c.pid)
 	}
 	path = path + "/raft.json"
 	file, err := os.Open(path)
 	defer file.Close()
 	if err != nil {
 		if LOG >= INFO {
-			log.Printf("Raft %v: Parsing Failed %v\n",c.pid, err)
+			log.Printf("Raft %v: Parsing Failed %v\n", c.pid, err)
 		}
 		return false, err
 	}
@@ -267,7 +265,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 		var v map[string]interface{}
 		if err := dec.Decode(&v); err == io.EOF || len(v) == 0 {
 			if LOG >= FINE {
-				log.Printf("Raft %v,Parsing Done !!!\n",c.pid)
+				log.Printf("Raft %v,Parsing Done !!!\n", c.pid)
 			}
 			return true, nil
 		} else if err != nil {
@@ -284,32 +282,32 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 			c.dataDir, ok = v["Value"].(string)
 			if ok == false {
 				if LOG >= INFO {
-					log.Printf("Raft %v: Error : Can not retrieve dataDir \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve dataDir \n", c.pid)
 				}
 			}
 		} else if prop == "Etimeout" {
 			t_timeout, ok := v["Value"].(float64)
 			if ok == false {
 				if LOG >= INFO {
-					log.Printf("Raft %v: Error : Can not retrieve Eelection Timeout \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve Eelection Timeout \n", c.pid)
 				}
-			} else { 
+			} else {
 				c.eTimeout = time.Duration(t_timeout) * time.Millisecond
 			}
 		} else if prop == "hfre" {
 			t_hfre, ok := v["Value"].(float64)
 			if ok == false {
 				if LOG >= INFO {
-					log.Printf("Raft %v: Error : Can not retrieve href \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve href \n", c.pid)
 				}
 			} else {
 				c.heartBeatInterval = time.Duration(t_hfre) * time.Millisecond
 			}
 		} else if prop == "logDir" {
-			c.logDir, ok  = v["Value"].(string) 
+			c.logDir, ok = v["Value"].(string)
 			if ok == false {
 				if LOG >= INFO {
-					log.Printf("Raft %v: Error : Can not retrieve logDir \n",c.pid)
+					log.Printf("Raft %v: Error : Can not retrieve logDir \n", c.pid)
 				}
 			}
 		}
@@ -321,7 +319,7 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 // And the must be processes at the higher priority
 // Broadcast Message are not the acknowledged
 
-func (c *consensus) sendHeartBeats( in chan bool, out chan bool, delayChan chan time.Duration ) {
+func (c *consensus) sendHeartBeats(in chan bool, out chan bool, delayChan chan time.Duration) {
 	// TODO : Implement multicast functionality
 	heartBeat := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid}
 	msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: heartBeat}
@@ -339,11 +337,11 @@ func (c *consensus) sendHeartBeats( in chan bool, out chan bool, delayChan chan 
 			}
 			out <- true
 			return
-		case delay := <- c.delayChan:
-				if LOG >= HIGH  {
-					c.logger.Printf("Heart Beat Manager :Introducing Delay %v\n",delay)
-				}
-				time.Sleep(delay)
+		case delay := <-c.delayChan:
+			if LOG >= HIGH {
+				c.logger.Printf("Heart Beat Manager :Introducing Delay %v\n", delay)
+			}
+			time.Sleep(delay)
 		}
 	}
 }
@@ -357,37 +355,36 @@ func init() {
 
 }
 
-
 // leader tracker runs the timer in case timeout happen it will send and message on the out channel
 // and will restun
 func (c *consensus) leaderTracker(in chan bool, out chan bool) {
-	if LOG >= HIGH {	
-		c.logger.Printf("Raft %v: Leader Tracker : Got Enable Signal\n",c.pid)
+	if LOG >= HIGH {
+		c.logger.Printf("Raft %v: Leader Tracker : Got Enable Signal\n", c.pid)
 	}
 	// Each server will use it's pid as seed to all will have different
 	// sequesnce of random values
 	// TODO : Timeut for first time must be at lower bound
 	randTimeout := c.eTimeout + time.Duration(float64(c.eTimeout.Nanoseconds())*(float64(rand.Intn(10000))/10000))*time.Nanosecond
-	if LOG >= FINE  {
-		c.logger.Printf("Raft %v: Leader Tracker : Timeout duration %v\n",c.pid ,randTimeout)
+	if LOG >= FINE {
+		c.logger.Printf("Raft %v: Leader Tracker : Timeout duration %v\n", c.pid, randTimeout)
 	}
-	LOOP:
+LOOP:
 	for {
 		select {
-			case <-time.After(randTimeout):
-				if LOG >= HIGH  {
-					c.logger.Println("Raft %v: Leader Tracker : Election Timeout")
+		case <-time.After(randTimeout):
+			if LOG >= HIGH {
+				c.logger.Println("Raft %v: Leader Tracker : Election Timeout")
+			}
+			out <- true
+			break LOOP
+		case val := <-in:
+			if val == false {
+				if LOG >= HIGH {
+					c.logger.Printf("Raft %v: Leader Tracker : Shutdown", c.pid)
 				}
-				out<-true		
-				break LOOP
-			case val:= <-in:
-				if val == false  {
-					if LOG >= HIGH {
-						c.logger.Printf("Raft %v: Leader Tracker : Shutdown",c.pid)
-					}
-					return 
-				} 
-				continue			
+				return
+			}
+			continue
 		}
 	}
 }
@@ -397,41 +394,39 @@ func getMessage(env *cluster.Envelope) *cluster.Message {
 	return &tMsg
 }
 
-
-
 // follower method implements the follower state
 func (c *consensus) follower() int {
 	if LOG >= HIGH {
-		c.logger.Printf("Raft %v: Follower State : Follow is Activated\n",c.pid)
+		c.logger.Printf("Raft %v: Follower State : Follow is Activated\n", c.pid)
 	}
-	
-	in_leaderTracker := make (chan bool, 2)
-	out_leaderTracker := make (chan bool, 2)
-	go c.leaderTracker(in_leaderTracker,out_leaderTracker)
-	
+
+	in_leaderTracker := make(chan bool, 2)
+	out_leaderTracker := make(chan bool, 2)
+	go c.leaderTracker(in_leaderTracker, out_leaderTracker)
+
 	for {
-		select {		
-			case env := <-c.server.Inbox():
-			if LOG >= FINE { 
+		select {
+		case env := <-c.server.Inbox():
+			if LOG >= FINE {
 				c.logger.Println("Follower State :  message arrived")
 			}
 			msg := getMessage(env)
 			switch {
-				case msg.MsgCode == APPEND_ENTRY:
+			case msg.MsgCode == APPEND_ENTRY:
 				if LOG >= FINE {
 					c.logger.Printf("Follower State : Append Received from %v \n", env.Pid)
 				}
-				
-				data, ok := (msg.Msg).(AppendEntriesToken) 
-				if ok == false  {
-					if LOG >= INFO  {
+
+				data, ok := (msg.Msg).(AppendEntriesToken)
+				if ok == false {
+					if LOG >= INFO {
 						c.logger.Printf("Follower State : Append Entries MssCode with different MsgToken %v \n", env.Pid)
-					}	
+					}
 					continue
-				}	 
-				term := int64(data.Term) 
+				}
+				term := int64(data.Term)
 				//TODO: Check second condition
-				if (c.currentTerm <= term) {
+				if c.currentTerm <= term {
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Leader Present")
 					}
@@ -440,22 +435,22 @@ func (c *consensus) follower() int {
 							c.logger.Println("Follower State : Error: More then one leader in same term")
 						}
 						continue
-					}  
+					}
 					// Leader not known yet
 					in_leaderTracker <- true
-					if  c.lStatus.status == false {
-						c.lStatus.status = true 
+					if c.lStatus.status == false {
+						c.lStatus.status = true
 					}
 					if c.lStatus.pidOfLeader != data.LeaderId {
-						c.lStatus.pidOfLeader = data.LeaderId								
+						c.lStatus.pidOfLeader = data.LeaderId
 					}
-					if c.currentTerm <  term {
-						c.currentTerm = term 
+					if c.currentTerm < term {
+						c.currentTerm = term
 						c.writeTerm(c.currentTerm)
 					}
-					c.sendNewResponseToken(env.Pid, true )
+					c.sendNewResponseToken(env.Pid, true)
 					/*
-					No need to sent the response message if all fine
+						No need to sent the response message if all fine
 					*/
 				} else {
 					if LOG >= FINE {
@@ -463,349 +458,348 @@ func (c *consensus) follower() int {
 					}
 					c.sendNewResponseToken(env.Pid, false)
 				}
-				case msg.MsgCode == VOTEREQUEST:
-					if LOG >= HIGH {
-						c.logger.Println("Follower State: Got Vote Request from ", env.Pid)
-					}
-					data , ok:= (msg.Msg).(VoteRequestToken)
-					if ok == false  {
-						if LOG >= INFO  {
-							c.logger.Printf("Follower State : Append Entries MssCode with different MsgToken %v \n", env.Pid)
-						}	
-						continue
-					}	 
-					term := int64(data.Term)
-					// TODO : Handle the second vote request coming from the same sender second time
-					if c.currentTerm > term {
-						if LOG >= HIGH {
-							in_leaderTracker <- true	
-							c.logger.Println("Follower State : Request With Lower term")
-						}
-						c.sendNewVoteResponseToken(env.Pid,false)
-					} else if c.currentTerm == term && (c.lStatus.votedFor == -1) {
-						if LOG >= HIGH {
-							c.logger.Println("Follower State : VoteRequest from equal term .. Not voted yet")
-							c.logger.Println("Follower State : Giving Vote")
-						}
-						in_leaderTracker <- true
-						c.markVote( term , int(data.CandidateId) )
-						c.sendNewVoteResponseToken(env.Pid,true)
-					} else if c.currentTerm == term && (c.lStatus.votedFor != -1) {
-						if LOG >= HIGH {
-							c.logger.Println("Follower State :Vote Request from equal Term , Already Voted")
-						}
-						if c.lStatus.votedFor == data.CandidateId {
-							in_leaderTracker <- true
-							c.sendNewVoteResponseToken(env.Pid,true)
-						} else {
-							c.sendNewVoteResponseToken(env.Pid,false)
-						}
-					} else {
-						if LOG >= HIGH {
-							c.logger.Println("Follower State :Vote Request from higher term.. Giveing Vote")
-						}
-						in_leaderTracker <- true
-						c.markVote( term , int(data.CandidateId) )
-						c.sendNewVoteResponseToken(env.Pid,true)
-					}
-				case msg.MsgCode == VOTERESPONSE:
-					if LOG >= HIGH  {
-						c.logger.Println("Follower State : Got vote response ... rejecting")
-					}
-				case msg.MsgCode == RESPONSE:
-					if LOG >= HIGH {
-						c.logger.Println("Follower State : Got Appned Entry response ... rejecting")
-					}
-				default:
-					c.logger.Println("Case Not handled")
-					os.Exit(0)
+			case msg.MsgCode == VOTEREQUEST:
+				if LOG >= HIGH {
+					c.logger.Println("Follower State: Got Vote Request from ", env.Pid)
 				}
-			case <-out_leaderTracker:
-				return CANDIDATE
-			case <-c.shutdownChan: 
-				in_leaderTracker <- false
-				if LOG >= HIGH  {
-						c.logger.Printf("Follower State : Stopped\n")
-					} 
-				return STOP 
+				data, ok := (msg.Msg).(VoteRequestToken)
+				if ok == false {
+					if LOG >= INFO {
+						c.logger.Printf("Follower State : Append Entries MssCode with different MsgToken %v \n", env.Pid)
+					}
+					continue
+				}
+				term := int64(data.Term)
+				// TODO : Handle the second vote request coming from the same sender second time
+				if c.currentTerm > term {
+					if LOG >= HIGH {
+						in_leaderTracker <- true
+						c.logger.Println("Follower State : Request With Lower term")
+					}
+					c.sendNewVoteResponseToken(env.Pid, false)
+				} else if c.currentTerm == term && (c.lStatus.votedFor == -1) {
+					if LOG >= HIGH {
+						c.logger.Println("Follower State : VoteRequest from equal term .. Not voted yet")
+						c.logger.Println("Follower State : Giving Vote")
+					}
+					in_leaderTracker <- true
+					c.markVote(term, int(data.CandidateId))
+					c.sendNewVoteResponseToken(env.Pid, true)
+				} else if c.currentTerm == term && (c.lStatus.votedFor != -1) {
+					if LOG >= HIGH {
+						c.logger.Println("Follower State :Vote Request from equal Term , Already Voted")
+					}
+					if c.lStatus.votedFor == data.CandidateId {
+						in_leaderTracker <- true
+						c.sendNewVoteResponseToken(env.Pid, true)
+					} else {
+						c.sendNewVoteResponseToken(env.Pid, false)
+					}
+				} else {
+					if LOG >= HIGH {
+						c.logger.Println("Follower State :Vote Request from higher term.. Giveing Vote")
+					}
+					in_leaderTracker <- true
+					c.markVote(term, int(data.CandidateId))
+					c.sendNewVoteResponseToken(env.Pid, true)
+				}
+			case msg.MsgCode == VOTERESPONSE:
+				if LOG >= HIGH {
+					c.logger.Println("Follower State : Got vote response ... rejecting")
+				}
+			case msg.MsgCode == RESPONSE:
+				if LOG >= HIGH {
+					c.logger.Println("Follower State : Got Appned Entry response ... rejecting")
+				}
+			default:
+				c.logger.Println("Case Not handled")
+				os.Exit(0)
 			}
+		case <-out_leaderTracker:
+			return CANDIDATE
+		case <-c.shutdownChan:
+			in_leaderTracker <- false
+			if LOG >= HIGH {
+				c.logger.Printf("Follower State : Stopped\n")
+			}
+			return STOP
+		}
 	}
 }
 
-
-func (c * consensus) markVote( term int64 , candidateId int ) {
+func (c *consensus) markVote(term int64, candidateId int) {
 	c.currentTerm = term
 	c.lStatus.votedFor = candidateId
 	c.writeAll(c.currentTerm, c.lStatus.votedFor)
 }
 
-
-func (c* consensus)sendVoteRequestToken(pid int ) {
-		voteReq := VoteRequestToken{c.currentTerm, c.pid}
-		reqMsg := cluster.Message{MsgCode: VOTEREQUEST, Msg: voteReq}
-		msgId := c.getMsgId()
-		replyEnv := &cluster.Envelope{Pid: pid, MsgId: msgId , MsgType: cluster.CTRL, Msg: reqMsg}
-		c.sendMessage(replyEnv)
+func (c *consensus) sendVoteRequestToken(pid int) {
+	voteReq := VoteRequestToken{c.currentTerm, c.pid}
+	reqMsg := cluster.Message{MsgCode: VOTEREQUEST, Msg: voteReq}
+	msgId := c.getMsgId()
+	replyEnv := &cluster.Envelope{Pid: pid, MsgId: msgId, MsgType: cluster.CTRL, Msg: reqMsg}
+	c.sendMessage(replyEnv)
 }
+
 // follower method implements the candidate state
 func (c *consensus) candidate() int {
-		if LOG >= HIGH  {
-			c.logger.Println("Candidate State : System in candidate state")
-		}
-		followerPid := c.server.Peers()
-		voteResponseMap := make(map[int]bool, len(followerPid))
-		voteCount := 1
-		c.markVote(c.currentTerm+1,-1)
-		c.lStatus.status = false
-		majority := (len(followerPid) / 2) + 1
-		if LOG >= HIGH {
-			c.logger.Printf("Candidate State : Required Majority : %v , Term :%v\n", majority, c.currentTerm)
-		}
-		
-		in_leaderTracker := make (chan bool, 1)
-		out_leaderTracker := make (chan bool, 1)
-		go c.leaderTracker(in_leaderTracker,out_leaderTracker)
-		
-		c.sendVoteRequestToken(cluster.BROADCAST)		
-		
-		for {
-			select {		
-				case env := <-c.server.Inbox():
-					msg := getMessage(env)
-					switch {
-						case msg.MsgCode == APPEND_ENTRY:
-							data ,ok := msg.Msg.(AppendEntriesToken)
-							if ok == false {
-								if LOG >= INFO {
-									c.logger.Println("Candidate State : Message Code and Msgtype Mismatch")
-								} 
-								continue
-							}
-							if c.currentTerm <= int64(data.Term) {
-								if LOG >= HIGH {
-									c.logger.Println("Candidate State : Recived HeatBeat with higher term ==> Leader Elected.")
-								}
-								in_leaderTracker<-false
-								c.lStatus.pidOfLeader = int(data.LeaderId)
-								c.lStatus.status = true
-								c.currentTerm = int64(data.Term)
-								c.markVote(int64(data.Term), int(data.LeaderId) )
-								if LOG >= FINE { 
-									c.logger.Println("Candidate State : Enabling Follower State")
-								}
-								c.sendNewResponseToken(env.Pid,true)
-								return FOLLOWER
-							} else {
-								c.logger.Println("Candidate State :Recived HeatBeat with lower Term and rejecting .")
-								c.sendNewResponseToken(env.Pid,false)
-							}
-					case msg.MsgCode == VOTEREQUEST:
-						if LOG >= HIGH {
-							c.logger.Println("Candidate State : Vote Request Recieved")
-						}
-						data, ok := (msg.Msg).(VoteRequestToken)
-						if ok == false {
-								if LOG >= INFO {
-									c.logger.Println("Candidate State : Message Code and Msgtype Mismatch")
-								} 
-								continue
-						}
-						term := int64(data.Term)
-						
-						if c.currentTerm > term {
-							if LOG >= HIGH {
-								c.logger.Println("Candidate State : Vote Request with lower term")
-								c.logger.Println("Candidate State : Sending Negative Message")
-							}
-							c.sendNewVoteResponseToken(env.Pid,false)
-						} else if c.currentTerm <= term {
-							//TODO : Check the log length
-							c.logger.Println("Candidate State : Vote Request with less then or eqaul Term")
-							c.logger.Println("Candidate State : Result depend on log length")
-							c.markVote(term,int(data.CandidateId))
-							c.sendNewVoteResponseToken(env.Pid,true)
-							in_leaderTracker <- false
-							if LOG >= HIGH {
-								c.logger.Println("Candidate State : Enabling Follower State")
-							}
-							return FOLLOWER
-						}
-					case msg.MsgCode == VOTERESPONSE:
-						data ,ok := (msg.Msg).(VoteResponseToken) 
-						if LOG >= INFO  && ok == false{
-							c.logger.Println("Candidate State :  MsgCode and Massge token mismatch")
-						} 
-						if LOG >= HIGH {
-							c.logger.Printf("Candidate State : Got a vote Response from %v\n", env.Pid)
-						}
-						c.logger.Printf("%+v\n",data)
-						term := int64(data.Term)
-						voteGranted := data.VoteGranted
-						if term < c.currentTerm {
-							if LOG >= HIGH { 
-								c.logger.Println("Candidate State : Got a vote Response with lower term")
-								c.logger.Println("Candidate State : Rejecting ..Response. ")
-							}
-						} else if voteGranted == true && c.currentTerm == term {
-							_, ok := voteResponseMap[env.Pid]
-							if ok == false {
-								voteResponseMap[env.Pid] = true
-								voteCount++
-								c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
-								if LOG >= HIGH {
-									c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
-								}
-							}
-							if voteCount >= majority {
-								if LOG >= HIGH {
-									c.logger.Println(c.pid, " Candidate State : has been elected as a leader")
-								}
-								c.lStatus.pidOfLeader = c.pid
-								c.lStatus.status = true
-								in_leaderTracker <- false 
-								return LEADER
-							}
-						} else if term > c.currentTerm {
-							// TODO : check for the need of the voteGranted == false
-							if LOG >= HIGH {
-								c.logger.Println("Candidate State : Vote Response from Higher Term.. must be negative")
-							}
-							c.markVote(term,-1)
-							if LOG >= HIGH  { 
-								c.logger.Println("Candidate State : Downgrading to follower")
-							}
-							in_leaderTracker <- false
-							return  FOLLOWER
-						}
-					default:
-						c.logger.Println("Case Not handled")
-						os.Exit(0)
+	if LOG >= HIGH {
+		c.logger.Println("Candidate State : System in candidate state")
+	}
+	followerPid := c.server.Peers()
+	voteResponseMap := make(map[int]bool, len(followerPid))
+	voteCount := 1
+	c.markVote(c.currentTerm+1, -1)
+	c.lStatus.status = false
+	majority := (len(followerPid) / 2) + 1
+	if LOG >= HIGH {
+		c.logger.Printf("Candidate State : Required Majority : %v , Term :%v\n", majority, c.currentTerm)
+	}
+
+	in_leaderTracker := make(chan bool, 1)
+	out_leaderTracker := make(chan bool, 1)
+	go c.leaderTracker(in_leaderTracker, out_leaderTracker)
+
+	c.sendVoteRequestToken(cluster.BROADCAST)
+
+	for {
+		select {
+		case env := <-c.server.Inbox():
+			msg := getMessage(env)
+			switch {
+			case msg.MsgCode == APPEND_ENTRY:
+				data, ok := msg.Msg.(AppendEntriesToken)
+				if ok == false {
+					if LOG >= INFO {
+						c.logger.Println("Candidate State : Message Code and Msgtype Mismatch")
 					}
-				case <-out_leaderTracker:
-					if LOG >= HIGH  { 
-								c.logger.Println("Candidate State : Election Timeout restart Election")
+					continue
+				}
+				if c.currentTerm <= int64(data.Term) {
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Recived HeatBeat with higher term ==> Leader Elected.")
 					}
-					return CANDIDATE
-				case <-c.shutdownChan:
 					in_leaderTracker <- false
-					if LOG >= HIGH  {
-						c.logger.Printf("Candiate State : Stopped\n")
+					c.lStatus.pidOfLeader = int(data.LeaderId)
+					c.lStatus.status = true
+					c.currentTerm = int64(data.Term)
+					c.markVote(int64(data.Term), int(data.LeaderId))
+					if LOG >= FINE {
+						c.logger.Println("Candidate State : Enabling Follower State")
 					}
-					return STOP			
+					c.sendNewResponseToken(env.Pid, true)
+					return FOLLOWER
+				} else {
+					c.logger.Println("Candidate State :Recived HeatBeat with lower Term and rejecting .")
+					c.sendNewResponseToken(env.Pid, false)
+				}
+			case msg.MsgCode == VOTEREQUEST:
+				if LOG >= HIGH {
+					c.logger.Println("Candidate State : Vote Request Recieved")
+				}
+				data, ok := (msg.Msg).(VoteRequestToken)
+				if ok == false {
+					if LOG >= INFO {
+						c.logger.Println("Candidate State : Message Code and Msgtype Mismatch")
+					}
+					continue
+				}
+				term := int64(data.Term)
+
+				if c.currentTerm > term {
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Vote Request with lower term")
+						c.logger.Println("Candidate State : Sending Negative Message")
+					}
+					c.sendNewVoteResponseToken(env.Pid, false)
+				} else if c.currentTerm <= term {
+					//TODO : Check the log length
+					c.logger.Println("Candidate State : Vote Request with less then or eqaul Term")
+					c.logger.Println("Candidate State : Result depend on log length")
+					c.markVote(term, int(data.CandidateId))
+					c.sendNewVoteResponseToken(env.Pid, true)
+					in_leaderTracker <- false
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Enabling Follower State")
+					}
+					return FOLLOWER
+				}
+			case msg.MsgCode == VOTERESPONSE:
+				data, ok := (msg.Msg).(VoteResponseToken)
+				if LOG >= INFO && ok == false {
+					c.logger.Println("Candidate State :  MsgCode and Massge token mismatch")
+				}
+				if LOG >= HIGH {
+					c.logger.Printf("Candidate State : Got a vote Response from %v\n", env.Pid)
+				}
+				c.logger.Printf("%+v\n", data)
+				term := int64(data.Term)
+				voteGranted := data.VoteGranted
+				if term < c.currentTerm {
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Got a vote Response with lower term")
+						c.logger.Println("Candidate State : Rejecting ..Response. ")
+					}
+				} else if voteGranted == true && c.currentTerm == term {
+					_, ok := voteResponseMap[env.Pid]
+					if ok == false {
+						voteResponseMap[env.Pid] = true
+						voteCount++
+						c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
+						if LOG >= HIGH {
+							c.logger.Printf("Candidate State : Vote Count %v \n ", voteCount)
+						}
+					}
+					if voteCount >= majority {
+						if LOG >= HIGH {
+							c.logger.Println(c.pid, " Candidate State : has been elected as a leader")
+						}
+						c.lStatus.pidOfLeader = c.pid
+						c.lStatus.status = true
+						in_leaderTracker <- false
+						return LEADER
+					}
+				} else if term > c.currentTerm {
+					// TODO : check for the need of the voteGranted == false
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Vote Response from Higher Term.. must be negative")
+					}
+					c.markVote(term, -1)
+					if LOG >= HIGH {
+						c.logger.Println("Candidate State : Downgrading to follower")
+					}
+					in_leaderTracker <- false
+					return FOLLOWER
+				}
+			default:
+				c.logger.Println("Case Not handled")
+				os.Exit(0)
 			}
+		case <-out_leaderTracker:
+			if LOG >= HIGH {
+				c.logger.Println("Candidate State : Election Timeout restart Election")
+			}
+			return CANDIDATE
+		case <-c.shutdownChan:
+			in_leaderTracker <- false
+			if LOG >= HIGH {
+				c.logger.Printf("Candiate State : Stopped\n")
+			}
+			return STOP
 		}
+	}
 }
 
 // following method implements the leader state
 func (c *consensus) leader() int {
-		if LOG >= HIGH  {
-			c.logger.Println("Leader State :System in Leader State")
-		}
-		// TODO : Hoe to ensure that the heart beat is send at higher priority after and interval: Critical to system
-		out_heartBeatManager := make (chan bool, 1)
-		in_heartBeatManager := make (chan bool, 1)
-		delay_heartBeatManager := make(chan time.Duration,1)
-		go c.sendHeartBeats(in_heartBeatManager, out_heartBeatManager, delay_heartBeatManager)
-		
-		c.lStatus.status = true
-		c.lStatus.pidOfLeader = c.pid
-		for {
-			select {
-			case env := <-c.server.Inbox():
-				msg := getMessage(env)
-				switch {
-				case msg.MsgCode == APPEND_ENTRY:
-					data, ok  := (msg.Msg).(AppendEntriesToken)
-					if LOG >= INFO && ok == false {
-						c.logger.Println("Leader State : Mismatach in MsgCode and MsgToken")
-					}
-					if LOG >= HIGH {
-						c.logger.Printf("Leader State : Received heart beat from %v",data.LeaderId)
-					}
-					term := int64(data.Term)
-					if c.currentTerm < term {
-						if LOG >= INFO {
-							c.logger.Println("Leader State : Receive heart beat with higher term")
-						}
-						c.markVote(term,int(data.LeaderId) ) 
-						c.logger.Println("Leader State : Downgrading to follower")
-						in_heartBeatManager <- true
-						<-out_heartBeatManager
-						return FOLLOWER
-					} else if c.currentTerm == term {	
-						if LOG >= INFO {
-							c.logger.Println("Leader State : ERROR : Receive heart beat with equal term")
-							c.logger.Println("Leader State : ERROR : Two Leader in same term")
-						}
-						// check log length
-					} else {
-						c.logger.Println("Leader State : Receive heart beat with lower term")
-						c.sendNewResponseToken(env.Pid,false)
-					}
-				case msg.MsgCode == RESPONSE:
-					data, ok := (msg.Msg).(ResponseToken)
-					if ok == false {
-						if LOG >= INFO {
-							c.logger.Println("Leader State : ERROR : MsgCode and Message token mismatech")
-						}
-					}
-					term := int64(data.Term)
-					if c.currentTerm <= term && data.Success == false {
-						c.logger.Println("Leader State : Got Negative hB Response")
-						c.logger.Println("Leader State : Downgrading to follower")
-						in_heartBeatManager <- true
-						<- out_heartBeatManager
-						return FOLLOWER
-					} else {
-						//c.logger.Println("Leader State : Got Positive HB Response")
-					}
-	
-				case msg.MsgCode == VOTEREQUEST:
-					data := (msg.Msg).(VoteRequestToken)
-					term := int64(data.Term)
-					if LOG >= HIGH  {
-						c.logger.Printf("Leader State :Leader received voteRequest from %v\n", data.CandidateId)
-					}
-					if c.currentTerm > term {
-						if LOG >= HIGH {
-							c.logger.Println("Leader State : The received request have less term")
-							c.logger.Println("Leader State : Sending Negative Reply")
-						}
-						c.sendNewVoteResponseToken(env.Pid,false)
-					} else if c.currentTerm == term {
-						if LOG >= HIGH {
-							c.logger.Println("Leader State : Vote Request with equal term")
-							c.logger.Println("Leader State : Sending Negative Reply")
-						}
-						c.sendNewVoteResponseToken(env.Pid,false)
-					} else {
-						if LOG >= INFO {
-							c.logger.Println("Leader State : log length will decide")
-						}
-					}
-				case msg.MsgCode == VOTERESPONSE:
-					if LOG >= HIGH {
-						c.logger.Println("Got vote response.. rejecting")
-					}
-				default:
+	if LOG >= HIGH {
+		c.logger.Println("Leader State :System in Leader State")
+	}
+	// TODO : Hoe to ensure that the heart beat is send at higher priority after and interval: Critical to system
+	out_heartBeatManager := make(chan bool, 1)
+	in_heartBeatManager := make(chan bool, 1)
+	delay_heartBeatManager := make(chan time.Duration, 1)
+	go c.sendHeartBeats(in_heartBeatManager, out_heartBeatManager, delay_heartBeatManager)
+
+	c.lStatus.status = true
+	c.lStatus.pidOfLeader = c.pid
+	for {
+		select {
+		case env := <-c.server.Inbox():
+			msg := getMessage(env)
+			switch {
+			case msg.MsgCode == APPEND_ENTRY:
+				data, ok := (msg.Msg).(AppendEntriesToken)
+				if LOG >= INFO && ok == false {
+					c.logger.Println("Leader State : Mismatach in MsgCode and MsgToken")
+				}
+				if LOG >= HIGH {
+					c.logger.Printf("Leader State : Received heart beat from %v", data.LeaderId)
+				}
+				term := int64(data.Term)
+				if c.currentTerm < term {
 					if LOG >= INFO {
-						c.logger.Println("Case Not handled")
+						c.logger.Println("Leader State : Receive heart beat with higher term")
 					}
-					os.Exit(0)
-				}
-			case delay := <- c.delayChan:
-				delay_heartBeatManager <-delay
-				if LOG >= HIGH  {
-					c.logger.Printf("Introducing Delay %v",delay)
-				}
-				time.Sleep(delay)
-			case  <- c.shutdownChan:
-				in_heartBeatManager <- true
-				if LOG >= HIGH  {
-						c.logger.Printf("Leader State : Stopped\n")
+					c.markVote(term, int(data.LeaderId))
+					c.logger.Println("Leader State : Downgrading to follower")
+					in_heartBeatManager <- true
+					<-out_heartBeatManager
+					return FOLLOWER
+				} else if c.currentTerm == term {
+					if LOG >= INFO {
+						c.logger.Println("Leader State : ERROR : Receive heart beat with equal term")
+						c.logger.Println("Leader State : ERROR : Two Leader in same term")
 					}
-				return STOP
-				
+					// check log length
+				} else {
+					c.logger.Println("Leader State : Receive heart beat with lower term")
+					c.sendNewResponseToken(env.Pid, false)
+				}
+			case msg.MsgCode == RESPONSE:
+				data, ok := (msg.Msg).(ResponseToken)
+				if ok == false {
+					if LOG >= INFO {
+						c.logger.Println("Leader State : ERROR : MsgCode and Message token mismatech")
+					}
+				}
+				term := int64(data.Term)
+				if c.currentTerm <= term && data.Success == false {
+					c.logger.Println("Leader State : Got Negative hB Response")
+					c.logger.Println("Leader State : Downgrading to follower")
+					in_heartBeatManager <- true
+					<-out_heartBeatManager
+					return FOLLOWER
+				} else {
+					//c.logger.Println("Leader State : Got Positive HB Response")
+				}
+
+			case msg.MsgCode == VOTEREQUEST:
+				data := (msg.Msg).(VoteRequestToken)
+				term := int64(data.Term)
+				if LOG >= HIGH {
+					c.logger.Printf("Leader State :Leader received voteRequest from %v\n", data.CandidateId)
+				}
+				if c.currentTerm > term {
+					if LOG >= HIGH {
+						c.logger.Println("Leader State : The received request have less term")
+						c.logger.Println("Leader State : Sending Negative Reply")
+					}
+					c.sendNewVoteResponseToken(env.Pid, false)
+				} else if c.currentTerm == term {
+					if LOG >= HIGH {
+						c.logger.Println("Leader State : Vote Request with equal term")
+						c.logger.Println("Leader State : Sending Negative Reply")
+					}
+					c.sendNewVoteResponseToken(env.Pid, false)
+				} else {
+					if LOG >= INFO {
+						c.logger.Println("Leader State : log length will decide")
+					}
+				}
+			case msg.MsgCode == VOTERESPONSE:
+				if LOG >= HIGH {
+					c.logger.Println("Got vote response.. rejecting")
+				}
+			default:
+				if LOG >= INFO {
+					c.logger.Println("Case Not handled")
+				}
+				os.Exit(0)
+			}
+		case delay := <-c.delayChan:
+			delay_heartBeatManager <- delay
+			if LOG >= HIGH {
+				c.logger.Printf("Introducing Delay %v", delay)
+			}
+			time.Sleep(delay)
+		case <-c.shutdownChan:
+			in_heartBeatManager <- true
+			if LOG >= HIGH {
+				c.logger.Printf("Leader State : Stopped\n")
+			}
+			return STOP
+
 		}
 	}
 }
@@ -825,7 +819,7 @@ func (c *consensus) getNewVoteResponseToken(flag bool) *cluster.Message {
 	return &replyMsg
 }
 
-func (c* consensus) sendNewVoteResponseToken(pid int, flag bool) {
+func (c *consensus) sendNewVoteResponseToken(pid int, flag bool) {
 	replyMsg := c.getNewVoteResponseToken(flag)
 	//msgId = c.getMsgId()
 	replyEnv := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: *replyMsg}
@@ -838,42 +832,40 @@ func (c *consensus) getNewResponseToken(flag bool) *cluster.Message {
 	return &replyMsg
 }
 
-func ( c * consensus)sendNewResponseToken( pid int , flag bool ) {
+func (c *consensus) sendNewResponseToken(pid int, flag bool) {
 	replyMsg := c.getNewResponseToken(flag)
 	//msgId = c.getMsgId()
-	replyEnv := &cluster.Envelope{Pid: pid ,MsgType: cluster.CTRL, Msg: *replyMsg}
+	replyEnv := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: *replyMsg}
 	c.sendMessage(replyEnv)
 }
 
 // initialize the raft instance
 func (c *consensus) initialize(pid int, path string, server *cluster.Server, isRestart bool) (bool, error) {
-	
-	
+
 	ok, err := c.parse(pid, path)
-	if ok == false { 
-		if (LOG >= INFO ) {
+	if ok == false {
+		if LOG >= INFO {
 			c.logger.Printf("Raft %v: Error : Parsing Failed, %v\n", c.pid, err)
 		}
 		return false, err
 	}
-	
+
 	logFileName := c.logDir + "/" + LOGFILENAME + strconv.Itoa(c.pid)
 	//log.Println(logFileName)
-	// TODO add Method to check the existance of log file 
+	// TODO add Method to check the existance of log file
 	file, err := os.Create(logFileName)
 	if err != nil {
-		if LOG >= INFO  {	
-		log.Printf("Raft %v: Error : %v\n",c.pid, err)	
+		if LOG >= INFO {
+			log.Printf("Raft %v: Error : %v\n", c.pid, err)
 		}
 	}
 	//c.logger = log.New(file, "Log: ", log.Ldate|log.Ltime|log.Lshortfile)
 	c.logger = log.New(file, "Log: ", log.Ltime|log.Lshortfile)
-	
-	if LOG >= HIGH  { 		
-		c.logger.Printf("Raft %v: Intializing the Raft , Restart : %v\n", pid, isRestart )	
+
+	if LOG >= HIGH {
+		c.logger.Printf("Raft %v: Intializing the Raft , Restart : %v\n", pid, isRestart)
 	}
-	
-	
+
 	c.server = *server
 	c.GetConfiguration()
 
@@ -881,38 +873,38 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	// Each of the server will start as the follower, or it sould be previously failed condition
 	c.state = FOLLOWER
 	c.filePath = c.dataDir + "/" + FILENAME + strconv.Itoa(c.pid)
-	
+
 	// Check if file exist from previos failure
-	if _, err := os.Stat(c.filePath); (!isRestart) &&  os.IsExist(err) {
-		if (LOG >= HIGH ) {  
-			c.logger.Printf("Raft %v :Restarting\n",c.pid) 
+	if _, err := os.Stat(c.filePath); (!isRestart) && os.IsExist(err) {
+		if LOG >= HIGH {
+			c.logger.Printf("Raft %v :Restarting\n", c.pid)
 		}
-		if (LOG >= HIGH ) {
-			c.logger.Printf("Raft %v :Meta data file already exist\n",c.pid) 
+		if LOG >= HIGH {
+			c.logger.Printf("Raft %v :Meta data file already exist\n", c.pid)
 		}
 		ok, err, data := c.readDisk()
 		if ok == true {
 			c.currentTerm = data.Term
 			c.lStatus.votedFor = data.VotedFor
 		} else if err != nil {
-			if (LOG >= INFO ) {
-				c.logger.Printf("Raft %v :Error : While Reading the Metadata file\n",c.pid) 
+			if LOG >= INFO {
+				c.logger.Printf("Raft %v :Error : While Reading the Metadata file\n", c.pid)
 			}
 			return false, err
 		}
 	} else {
-		if (LOG >= HIGH ) { 
-			if  isRestart == false {  
-				c.logger.Printf("Raft %v :Starting\n",c.pid)
+		if LOG >= HIGH {
+			if isRestart == false {
+				c.logger.Printf("Raft %v :Starting\n", c.pid)
 			} else {
-				c.logger.Printf("Raft %v :Meta file does not exist\n",c.pid)
+				c.logger.Printf("Raft %v :Meta file does not exist\n", c.pid)
 			}
 		}
 		file, err := os.Create(c.filePath)
 		defer file.Close()
 		if err != nil {
 			if LOG >= INFO {
-				c.logger.Printf("Raft %v :Error : Failed to create file %v \n",c.pid, err)
+				c.logger.Printf("Raft %v :Error : Failed to create file %v \n", c.pid, err)
 			}
 			return false, err
 		}
@@ -921,48 +913,47 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 		ok, err = c.writeAll(c.currentTerm, c.lStatus.votedFor)
 		if ok == false {
 			if LOG >= INFO {
-				c.logger.Printf("Raft %v :Error : Error in writing to metadata file %v \n",c.pid, err)
+				c.logger.Printf("Raft %v :Error : Error in writing to metadata file %v \n", c.pid, err)
 			}
 			return ok, err
 		}
 	}
 	// Leader Status
 	c.lStatus = leaderStatus{-1, 0 * time.Second, false, 0}
-	
-	c.delayChan = make (chan time.Duration, 2)
-	c.shutdownChan = make (chan bool, 0)
+
+	c.delayChan = make(chan time.Duration, 2)
+	c.shutdownChan = make(chan bool, 0)
 	rand.Seed(int64(c.pid))
-	if LOG >= HIGH  { 		
-		c.logger.Printf("Raft %v: Intialion done\n", c.pid, )	
+	if LOG >= HIGH {
+		c.logger.Printf("Raft %v: Intialion done\n", c.pid)
 	}
 	return true, nil
 }
 
-
-func (c* consensus)startRaft() {
+func (c *consensus) startRaft() {
 	var state int
 	if LOG >= HIGH {
-		c.logger.Printf("Raft %v: Starting Raft Instance  \n " ,c.pid)
+		c.logger.Printf("Raft %v: Starting Raft Instance  \n ", c.pid)
 	}
-	// Instance will start in follower state 
-	state = FOLLOWER  // Confirm the case of restart
-	LOOP:
+	// Instance will start in follower state
+	state = FOLLOWER // Confirm the case of restart
+LOOP:
 	for {
 		switch {
-			case state == FOLLOWER:
-				state = c.follower()
-			case state == CANDIDATE: 
-				state = c.candidate()
-			case state == LEADER:
-				state = c.leader()
-			case state == STOP: 
-				break LOOP
-			default :
-			if LOG >= INFO  {
-				c.logger.Printf("Raft %v: Invalid state : %v \n " ,state )
-				c.logger.Printf("Raft %v: Shutdown  \n ",c.pid)
-			}	
-			break LOOP	
+		case state == FOLLOWER:
+			state = c.follower()
+		case state == CANDIDATE:
+			state = c.candidate()
+		case state == LEADER:
+			state = c.leader()
+		case state == STOP:
+			break LOOP
+		default:
+			if LOG >= INFO {
+				c.logger.Printf("Raft %v: Invalid state : %v \n ", state)
+				c.logger.Printf("Raft %v: Shutdown  \n ", c.pid)
+			}
+			break LOOP
 		}
 	}
 	c.shutdownChan <- true
@@ -973,17 +964,17 @@ func (c* consensus)startRaft() {
 //  path : path of the configuration files
 //  server : serverInstance (set server logger before sending)
 
-func NewRaft(myid int, path string, logLevel int, server *cluster.Server,isRestart bool) (*consensus, bool, error) {
+func NewRaft(myid int, path string, logLevel int, server *cluster.Server, isRestart bool) (*consensus, bool, error) {
 	var c consensus
 	c.pid = myid
 	LOG = logLevel
-	_, err := c.initialize(myid, path,server,isRestart)
+	_, err := c.initialize(myid, path, server, isRestart)
 	if err != nil {
 		return nil, false, err
 	}
 	go c.startRaft()
 	if LOG >= INFO {
-		c.logger.Println("Raft %v: Successfully Started Raft Instance",c.pid)
-	} 
+		c.logger.Println("Raft %v: Successfully Started Raft Instance", c.pid)
+	}
 	return &c, true, nil
 }
