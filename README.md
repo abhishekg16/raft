@@ -62,7 +62,7 @@ The raft module depends on the cluster for underlying communication. Which inter
 
 1. To build the project you need to install the zmq4 golang binding. Binding are present at https://github.com/pebbe/zmq4
 2. Get Raft from git hub. "go get github.com/abhishekg16/raft"
-3. Go to the raft/ "go install".
+3. Go to the raft folder and the give command "go install".
 4. Go to raft directory and give command "go test"
 
 
