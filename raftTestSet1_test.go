@@ -8,8 +8,8 @@ import "time"
 const (
 	NOFSERVER        = 3
 	NOFRAFT          = 3
-	SERVER_LOG_LEVEL = NOLOG
-	RAFT_LOG_LEVEL   = NOLOG
+	SERVER_LOG_LEVEL = INFO
+	RAFT_LOG_LEVEL   = FINE
 )
 
 func makeDummyServer(num int) ([]cluster.Server, error) {
@@ -20,7 +20,6 @@ func makeDummyServer(num int) ([]cluster.Server, error) {
 		if err != nil {
 			return nil, err
 		}
-
 	}
 	return s, nil
 }
@@ -88,6 +87,7 @@ func shutdownRaft(num int, r []*consensus) {
 	}
 }
 
+/*
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -111,6 +111,79 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	shutdownRaft(NOFSERVER, rObj)
 }
 
+*/
+
+
+// This will few commands and will check whether they are successfully replicated
+/*
+func TestRaft_SingleCommandTest(t *testing.T) {
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	time.Sleep(10 * time.Second)
+	// send a commond on outbox of every one
+	// only leader will accept and
+	
+	rObj[0].Outbox() <- "Add"
+	reply := <-rObj[0].Inbox()
+	log.Printf("reply %v\n", reply)
+	
+	rObj[1].Outbox() <- "Add"
+	reply = <-rObj[1].Inbox()
+	log.Printf("reply %v\n", reply)
+	
+	rObj[2].Outbox() <- "Add"
+	reply = <-rObj[2].Inbox()
+	log.Printf("reply %v\n", reply)
+	
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+}
+*/
+
+// This will few commands and will check whether they are successfully replicated
+func TestRaft_MultipleCommondTest(t *testing.T) {
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	time.Sleep(10 * time.Second)
+	// send a commond on outbox of every one
+	// only leader will accept and
+	
+	// assuming leader is 1
+	leader := 1
+	 
+	for i := 0 ; i < 10 ; i++ {
+		rObj[leader].Outbox() <- "Add"
+		reply := <-rObj[leader].Inbox()
+		log.Printf("reply %v\n", reply)
+		if reply.Index == -1 {
+			leader = reply.Data 
+		}
+	}
+	
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+}
+
+
+/*
 func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 
 	sObjs, err := makeDummyServer(NOFSERVER)
@@ -145,3 +218,4 @@ func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
 }
+*/

@@ -15,6 +15,7 @@ const (
 const (
 	FILENAME    = "book"
 	LOGFILENAME = "log"
+	DATABASE_NAME = "db"
 )
 
 // These constant will identify the types of the Messages s
