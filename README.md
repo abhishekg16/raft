@@ -1,12 +1,16 @@
 #Raft (Consensus Module)#
-This project provides an implementation of Raft consensus algorithm. The consensus algorithm guarantee that there would be only one leader a time in the system for a term. The raft also provides the well defined interface by using which you can get information about the  leader and term. 
-	Raft uses the cluster implementation as a underlying communication channel which allows different raft instances to communicate over the network. It also uses the LevelDB to store the log messages. 
+This project provides a highly reliable Key-Value store. It uses the Raft consensus algorithm to  keep all the instances of the K-V store consistent. 
+The consensus algorithm guarantee that there would be only one leader a time in the system for a term. The client can contact to leader and get there command executed on the K-V store. 
+Current Implementation has one drawback the raft layer itself updates the K-V store which in not a good design. I might fix this issue in future.
+The raft provides the well defined interface by using which you can get information about the leader, term etc. Raft layer uses the cluster implementation as a underlying communication channel which allows different raft instances to communicate over the network. It also uses the LevelDB to store the log messages at persistent storage
 
 ####Features of Implementation ####
 1. Provides easily configurable files 
 2. File logging facilities
+3. System can work fine in case of lost message, Delayed message
+4. System can bear upto n/2 node failures.
 3. Provide two different port for the message and control message (But not used in current Implementation)
-
+4. Ensure the idempotent execution of the command
 
 #### Limitation ####
 1. The storage is linked with the raplication layer which is a bad design. Need to be fixed.
