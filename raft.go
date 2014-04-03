@@ -338,6 +338,9 @@ func  (c* consensus)Inbox() <- chan *LogItem {
 	return c.inRaft
 } 
 
+func (c* consensus)PrintLog() {
+	c.dbInterface.PrintLog()
+}
 
 func (c *consensus) getMsgId() int64 {
 	c.msgId++
@@ -1060,8 +1063,8 @@ func (c * consensus)updateLastAppliedIndex() {
 		for i := c.lastApplied+1 ; i <= c.commitIndex ; i++ {
 			if LOG >= HIGH {
 				c.logger.Printf("Follower State : Apply Log in State Machie, LogIndex %v", i)
-				c.inRaft <- &LogItem{Index : i , Data: "Ok" }
 			}
+			c.inRaft <- &LogItem{Index : i , Data: "Ok" }
 		}
 		c.lastApplied = c.commitIndex
 	}
@@ -1169,6 +1172,7 @@ func (c *consensus) leader() int {
 					}
 				}
 				term := int64(data.Term)
+				//c.logger.Println("Leader State : Response Message Id %v, Msg %v  ", env.MsgId ,data,)
 				if c.currentTerm < term  {
 					c.logger.Println("Leader State : Got Negative HB Response")
 					c.logger.Println("Leader State : Downgrading to follower")
@@ -1236,8 +1240,14 @@ func (c *consensus) leader() int {
 						c.sendNewVoteResponseToken(env.Pid, true)
 						return FOLLOWER
 					} else {
-						// deny 
+						if LOG >= INFO {
+							c.logger.Println("Leader State : Leader More uptodate...sending Negative Reply")
+							c.logger.Println("Leader State : Because of higher Temr can not be leader any more moving to Follower")
+						}	
 						c.sendNewVoteResponseToken(env.Pid, false)
+						c.lStatus.status = false 
+						c.markVote(term,-1)
+						return FOLLOWER
 					} 
 				}
 			case msg.MsgCode == VOTERESPONSE:
@@ -1411,7 +1421,7 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	c.commitIndex = 0
 	c.lastApplied = 0
 	
-	c.dbInterface = GetDBInterface()
+	c.dbInterface = GetDBInterface(c.pid,c.logger)
 	
 	err = c.dbInterface.OpenConnection(c.dbPath)
 	if err != nil {
@@ -1466,7 +1476,7 @@ LOOP:
 		}
 	}
 	c.shutdownChan <- true
-	//c.dbInterface.CloseDB()
+	c.dbInterface.CloseDB()
 }
 
 // New method takes the

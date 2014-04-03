@@ -8,8 +8,8 @@ import "time"
 const (
 	NOFSERVER        = 3
 	NOFRAFT          = 3
-	SERVER_LOG_LEVEL = INFO
-	RAFT_LOG_LEVEL   = FINE
+	SERVER_LOG_LEVEL = NOLOG
+	RAFT_LOG_LEVEL   = NOLOG
 )
 
 func makeDummyServer(num int) ([]cluster.Server, error) {
@@ -87,7 +87,7 @@ func shutdownRaft(num int, r []*consensus) {
 	}
 }
 
-/*
+
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -100,23 +100,24 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 		t.Errorf("Cound not instantiate Raft Instance instances")
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(5 * time.Second)
 	ok, _ = checkLeaderShip(rObj)
 
+	
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
 	if ok == false {
 		t.Errorf("Multiple Leaders \n ")
 	}
 
-	shutdownServer(NOFSERVER, sObjs)
-	shutdownRaft(NOFSERVER, rObj)
 }
 
-*/
 
 
 // This will few commands and will check whether they are successfully replicated
 
-/*
+// This test willl check weather servers are handling request properly
+// leader should handle request and other should resturn the leaderID 
 func TestRaft_SingleCommandTest(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -130,26 +131,50 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 	}
 
 	time.Sleep(10 * time.Second)
+	
 	// send a commond on outbox of every one
-	// only leader will accept and
-	
-	rObj[0].Outbox() <- "Add"
-	reply := <-rObj[0].Inbox()
-	log.Printf("reply %v\n", reply)
-	
-	rObj[1].Outbox() <- "Add"
-	reply = <-rObj[1].Inbox()
-	log.Printf("reply %v\n", reply)
-	
-	rObj[2].Outbox() <- "Add"
-	reply = <-rObj[2].Inbox()
-	log.Printf("reply %v\n", reply)
-	
+	// only leader will accept and 
+	// other should reply the current leader
+	var reply *LogItem
+	count := 0
+	for i := 0 ; i < NOFRAFT ; i++ { 
+		leader := i
+		LOOP1:
+		for {
+			rObj[leader].Outbox() <- "Add"
+			select {
+				case reply = <-rObj[leader].Inbox():
+						//
+				case <-time.After(3*time.Second):
+				//	log.Printf("Resending to  : %v",leader)
+					continue
+			}
+			if reply.Index == -1 {
+				//log.Println("reply : %v",reply)
+				leader = reply.Data.(int) 	
+			} else {
+				count++
+				//log.Printf("Reply : %v",reply)
+				break LOOP1
+			}
+		}
+	}
+
 	shutdownServer(NOFSERVER, sObjs)
-	shutdownRaft(NOFSERVER, rObj)
+	shutdownRaft(NOFSERVER, rObj)	
+	
+	if count != 3 {
+		t.Errorf("All machine did not reponded ")	
+	}
 }
-*/
+
+// This test check 
+// 1. Stop the leader case (delayed leader)
+// 2. All the server must have same log
+
+
 func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
+	
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -170,13 +195,13 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 	for i:= 0 ; i < 5 ; i++ {
 		LOOP1:
 		for {
-			log.Printf("Leader : %v",leader)
+	//		log.Printf("Leader : %v",leader)
 			rObj[leader].Outbox() <- "Add"
 			reply := <-rObj[leader].Inbox()
 			if reply.Index == -1 {
 				leader = reply.Data.(int) 	
 			} else {
-				log.Printf("Reply : %v",reply)
+		//		log.Printf("Reply : %v",reply)
 				break LOOP1
 			}
 		}
@@ -184,35 +209,87 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 	
 	// introduce delay
 	rObj[leader].Delay(10*time.Second)
-
-	log.Println("Came")
+	var reply *LogItem
 	for i:= 0 ; i < 5 ; i++ {
 		LOOP2:
 		for {
-			log.Printf("Leader : %v",leader)
+			//log.Printf("Leader : %v",leader)
 			rObj[leader].Outbox() <- "Add"
-			reply := <-rObj[leader].Inbox()
+			select {
+				case reply = <-rObj[leader].Inbox():
+						//
+				case <-time.After(3*time.Second):
+				//	log.Printf("Resending to  : %v",leader)
+					continue
+			}
 			if reply.Index == -1 {
 				leader = reply.Data.(int) 	
 			} else {
-				log.Printf("Reply : %v",reply)
+			//	log.Printf("Reply : %v",reply)
 				break LOOP2
 			}
 		}
 	}
 	time.Sleep(10*time.Second)
 	
+	indexes := make([]int64,0)
+	terms:=  make([]int64,0)
 	for i := 0 ; i < NOFRAFT ; i++ {
 		index, term := rObj[i].LastLogIndexAndTerm()
-		log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)	
+		indexes = append(indexes,index)
+		terms = append(terms,term)
+		//log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)
+		//rObj[i].PrintLog()	
 	}
 	
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
+	
+	for i := 0 ; i < len(indexes)-1 ; i++ {
+		if ( indexes[i] != indexes[i+1] || terms[i] != terms[i+1] ) {
+			t.Errorf("The Log is not same on all the servers")		
+		}
+		
+	}
 }
 
 
 
+
+func TestRaft_DelayIntroducedInLeader(t *testing.T) {
+
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+	time.Sleep(10 * time.Second)
+
+	ok, term := checkLeaderShip(rObj)
+	if ok == false {
+		t.Errorf("Multiple Leaders \n ")
+	}
+	leader := getLeaderInTerm(NOFRAFT, term, rObj)
+	if leader == -1 {
+		t.Errorf("No Leader Present in term \n ")
+	} else {
+		rObj[leader].Delay(5 * time.Second)
+	
+
+		time.Sleep(15 * time.Second)
+		ok, _ = checkLeaderShip(rObj)
+		if ok == false {
+			t.Errorf("Multiple Leaders \n ")
+		}
+	}
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+}
 
 
 
@@ -252,39 +329,4 @@ func TestRaft_MultipleCommondTest(t *testing.T) {
 }
 */
 
-/*
-func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 
-	sObjs, err := makeDummyServer(NOFSERVER)
-	if err != nil {
-		log.Println(err)
-		t.Errorf("Cound not instantiate server instances")
-	}
-	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
-	if ok == false {
-		log.Println(err)
-		t.Errorf("Cound not instantiate Raft Instance instances")
-	}
-	time.Sleep(10 * time.Second)
-
-	ok, term := checkLeaderShip(rObj)
-	if ok == false {
-		t.Errorf("Multiple Leaders \n ")
-	}
-	leader := getLeaderInTerm(NOFRAFT, term, rObj)
-	if leader == -1 {
-		t.Errorf("No Leader Present in term \n ")
-	} else {
-		rObj[leader].Delay(5 * time.Second)
-	
-
-		time.Sleep(15 * time.Second)
-		ok, _ = checkLeaderShip(rObj)
-		if ok == false {
-			t.Errorf("Multiple Leaders \n ")
-		}
-	}
-	shutdownServer(NOFSERVER, sObjs)
-	shutdownRaft(NOFSERVER, rObj)
-}
-*/
