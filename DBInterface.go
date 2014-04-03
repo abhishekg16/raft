@@ -131,17 +131,16 @@ func (di * DBInterface)Put(key int64, value LogEntry) error {
 		log.Println("Raft DBInterface: Cound not Insert", err)
 		return err
 	}
+	log.Printf("Raft DBInterface: Put : Index %v, Entry %v", key ,value)
 	return nil
 } 
 
-func (di *DBInterface)GetTerm(key int64) (int64, error){
-
+func (di *DBInterface)GetTerm(key int64) (int64, error){	
 	lEntry, err := di.Get(key)
 	if err != nil {
-
 		return -1, err
-	} 
-	log.Println("Raft DBInterface: logEntry For Term ", lEntry )
+	}
+	log.Printf("Raft DBInterface: GET: logEntry For Index %v : %v \n", key,lEntry )
 	if lEntry != nil {
 		return lEntry.Term, nil
 	} 
