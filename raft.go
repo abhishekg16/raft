@@ -29,117 +29,109 @@ import (
 //debug which provide the differt kind of facilities
 var LOG int
 
-
 // Loginging Structs
 type LogItem struct {
 	Index int64
-	Data interface{}	
+	Data  interface{}
 }
 
-// The Log will contains the array of log entries.  
+// The Log will contains the array of log entries.
 type LogEntry struct {
-	Term int64
+	Term    int64
 	Command interface{}
 }
- 
 
-// This method will remove all the entries which are greater then the 
-// lastIndex (inclusive) 
+// This method will remove all the entries which are greater then the
+// lastIndex (inclusive)
 
-func (c * consensus) purgeLog(s int64) {
-	for i := s ; i <= c.lastLogIndex ; i++ {
+func (c *consensus) purgeLog(s int64) {
+	for i := s; i <= c.lastLogIndex; i++ {
 		if LOG >= FINE {
-			c.logger.Printf("Purge Log : Deleting key %v",i)
-		} 
+			c.logger.Printf("Purge Log : Deleting key %v", i)
+		}
 		err := c.dbInterface.Delete(i)
-		if err != nil && LOG >= INFO  {
-			c.logger.Printf("Purge Log : Error : Count not delete key %v",i)
+		if err != nil && LOG >= INFO {
+			c.logger.Printf("Purge Log : Error : Count not delete key %v", i)
 		}
 	}
 	c.updateLastLogIndex()
 }
 
-
-
-func (c * consensus) WriteToLocalLog (cmd interface{}) {
+func (c *consensus) WriteToLocalLog(cmd interface{}) {
 	c.lastLogIndex++
 	c.lastLogTerm = c.currentTerm
-	if LOG >= FINE  {
-			c.logger.Printf("Inserting in local log Index: %v, Term %v: Command: %v", c.lastLogIndex,c.lastLogTerm,cmd)
+	if LOG >= FINE {
+		c.logger.Printf("Inserting in local log Index: %v, Term %v: Command: %v", c.lastLogIndex, c.lastLogTerm, cmd)
 	}
-	lEntry := LogEntry{Term: c.currentTerm, Command : cmd}
-	err := c.dbInterface.Put(c.lastLogIndex, lEntry) 
+	lEntry := LogEntry{Term: c.currentTerm, Command: cmd}
+	err := c.dbInterface.Put(c.lastLogIndex, lEntry)
 	if err != nil {
 		if LOG >= INFO {
 			c.logger.Printf("Error : WriteToLocalLog: %v \n", err)
 		}
 		c.lastLogIndex--
-	} 
+	}
 }
 
-func (c* consensus) verifyLastLogTermIndex(candidateLastLogTerm int64, candidateLastLogIndex int64) bool {
-	 if  ( (c.lastLogTerm > candidateLastLogTerm ) ||  ( c.lastLogTerm == candidateLastLogTerm && c.lastLogIndex > candidateLastLogIndex  )  ) {
-	 	return false
-	 } else {
-	 	return true
-	 }
+func (c *consensus) verifyLastLogTermIndex(candidateLastLogTerm int64, candidateLastLogIndex int64) bool {
+	if (c.lastLogTerm > candidateLastLogTerm) || (c.lastLogTerm == candidateLastLogTerm && c.lastLogIndex > candidateLastLogIndex) {
+		return false
+	} else {
+		return true
+	}
 }
-
 
 // check i
 // return - Success - true if match successful
 //			(only If success failed)
-//			lastIndex   
-func ( c* consensus) verifyPrevLogTermIndex(otherPrevLogTerm int64, otherPrevLogIndex int64  ) (bool,int64,error){
+//			lastIndex
+func (c *consensus) verifyPrevLogTermIndex(otherPrevLogTerm int64, otherPrevLogIndex int64) (bool, int64, error) {
 	if otherPrevLogIndex == int64(0) {
-		return  true,1,nil
-	}  else if val, err := c.dbInterface.Get(otherPrevLogIndex); err == nil {
+		return true, 1, nil
+	} else if val, err := c.dbInterface.Get(otherPrevLogIndex); err == nil {
 		if val == nil {
-			return false, c.lastLogIndex+1,nil  
+			return false, c.lastLogIndex + 1, nil
 		} else if otherPrevLogTerm == val.Term {
-			return true,c.lastLogIndex+1,nil
+			return true, c.lastLogIndex + 1, nil
 		} else {
-			return false,otherPrevLogIndex,nil
-		}	
+			return false, otherPrevLogIndex, nil
+		}
 	} else {
 		if LOG >= INFO {
 			c.logger.Printf("Error : verifyPrevLogTermIndex \n")
 		}
-		return false,-1,err 
+		return false, -1, err
 	}
-	return false,-1,nil
+	return false, -1, nil
 }
-
-
-
 
 // This Token would be used for AppendEntries/HeartBeat Token
 // Even though the Message Code would be able to identify the Actual Purpose of the Token
 
 type AppendEntriesToken struct {
-	Term     int64
-	LeaderId int
-	PrevLogIndex int64 	// index for the logentry immediately precedding new one.
-	PrevLogTerm int64 	// term of the prevLogEntry 
-	Entries []LogEntry 
-	LeaderCommit int64  // tell follower till what index log has been commited and safe to execute on
-						// state machine 
+	Term         int64
+	LeaderId     int
+	PrevLogIndex int64 // index for the logentry immediately precedding new one.
+	PrevLogTerm  int64 // term of the prevLogEntry
+	Entries      []LogEntry
+	LeaderCommit int64 // tell follower till what index log has been commited and safe to execute on
+	// state machine
 }
 
 // Response Token would be used for response of the AppendEntry/HeartBeat Token
 type ResponseToken struct {
-	Term    int64
-	Success bool
-	NextIndex int64	// index which follower needs
-	//nextTerm int64	// TODO :should be removed if not used  
+	Term      int64
+	Success   bool
+	NextIndex int64 // index which follower needs
+	//nextTerm int64	// TODO :should be removed if not used
 }
 
 // VoteRequestToekn would be used to request the vote
 type VoteRequestToken struct {
-	Term        int64
-	CandidateId int
+	Term         int64
+	CandidateId  int
 	LastLogIndex int64
-	LastLogTerm int64
+	LastLogTerm  int64
 }
 
 // Vote Response Token would be used to respond the vote
@@ -263,36 +255,34 @@ type consensus struct {
 	mutexInbox  sync.Mutex // mutex lock for server in channel
 	msgId       int64
 
+	outRaft chan interface{} // out channel used by client in order to put the message which need to
+	// to be replicated, if the present instance in not leader rhe message would be
+	// would be droped
+	inRaft chan *LogItem //
 
-	outRaft chan interface {} // out channel used by client in order to put the message which need to 
-						      // to be replicated, if the present instance in not leader rhe message would be 
-						   	  // would be droped	 
-	inRaft chan *LogItem  //
-	
-	commitIndex int64  // index of highest log entry know to be commited 
-	
-	lastApplied int64    // index of the highest log entry known to be commited
-	
-	
-	// only for leader, and mast be re-initialized after each election 
-	nextIndex map[int]int64	// index of the next log entry to send to server for replication, 
-							// initialized to leader lastlog index +1  
-	matchIndex map[int]int64  // for each server index of the highest log entry know to be replicated on
-						// that server
-						
+	commitIndex int64 // index of highest log entry know to be commited
+
+	lastApplied int64 // index of the highest log entry known to be commited
+
+	// only for leader, and mast be re-initialized after each election
+	nextIndex map[int]int64 // index of the next log entry to send to server for replication,
+	// initialized to leader lastlog index +1
+	matchIndex map[int]int64 // for each server index of the highest log entry know to be replicated on
+	// that server
+
 	lastLogIndex int64 //this keep track of the index of the highest log present in the disklog
-	lastLogTerm int64 	//this keeps track of the last log term   
-	
+	lastLogTerm  int64 //this keeps track of the last log term
+
 	shutdownChan chan bool
 
 	delayChan chan time.Duration
-	
+
 	prevLogIndex int64
-	
+
 	prevLogTerm int64
-	
+
 	dbPath string
-	
+
 	dbInterface *DBInterface
 }
 
@@ -330,15 +320,15 @@ func (c *consensus) Shutdown() {
 	}
 }
 
- func (c* consensus)Outbox() chan <- interface{} {
- 	return c.outRaft
- } 
- 
-func  (c* consensus)Inbox() <- chan *LogItem {
-	return c.inRaft
-} 
+func (c *consensus) Outbox() chan<- interface{} {
+	return c.outRaft
+}
 
-func (c* consensus)PrintLog() {
+func (c *consensus) Inbox() <-chan *LogItem {
+	return c.inRaft
+}
+
+func (c *consensus) PrintLog() {
 	c.dbInterface.PrintLog()
 }
 
@@ -367,10 +357,9 @@ func (c *consensus) GetConfiguration() {
 	}
 }
 
-func (c* consensus)LastLogIndexAndTerm() (int64,int64){
-	return  c.dbInterface.GetLastLogIndex(), c.dbInterface.GetLastLogTerm()
+func (c *consensus) LastLogIndexAndTerm() (int64, int64) {
+	return c.dbInterface.GetLastLogIndex(), c.dbInterface.GetLastLogTerm()
 }
-
 
 // this method check the server inbox channel and return the input Envelope to the coller
 func (c *consensus) inbox() *cluster.Envelope {
@@ -455,7 +444,6 @@ func (c *consensus) parse(ownId int, path string) (bool, error) {
 	}
 }
 
-
 func init() {
 	log.Println("Registering Interfaces in gob")
 	gob.Register(VoteRequestToken{})
@@ -484,7 +472,7 @@ LOOP:
 		select {
 		case <-time.After(randTimeout):
 			if LOG >= HIGH {
-				c.logger.Printf("Raft %v: Leader Tracker : Election Timeout\n",c.pid)
+				c.logger.Printf("Raft %v: Leader Tracker : Election Timeout\n", c.pid)
 			}
 			out <- true
 			break LOOP
@@ -496,7 +484,7 @@ LOOP:
 				return
 			}
 			if LOG >= HIGH {
-					c.logger.Printf("Raft %v: Leader Tracker : GotHB", c.pid)
+				c.logger.Printf("Raft %v: Leader Tracker : GotHB", c.pid)
 			}
 			continue
 		}
@@ -508,26 +496,24 @@ func getMessage(env *cluster.Envelope) *cluster.Message {
 	return &tMsg
 }
 
-
-func (c * consensus) enterInLocalLog(currentIndex int64, entries []LogEntry) ( int64 , error){
-	for i := 0 ; i < len(entries) ; i++ {
+func (c *consensus) enterInLocalLog(currentIndex int64, entries []LogEntry) (int64, error) {
+	for i := 0; i < len(entries); i++ {
 		le := entries[i]
-		err := c.dbInterface.Put(currentIndex,le)
+		err := c.dbInterface.Put(currentIndex, le)
 		if err != nil {
 			if LOG >= INFO {
 				c.logger.Println("Follower State : Count Not Insert in localLog ")
 			}
-			// TODO : Make this operation atomic 
-			return currentIndex-1 , err
+			// TODO : Make this operation atomic
+			return currentIndex - 1, err
 		}
 		if LOG >= FINE {
-			c.logger.Println("Follower State : Inserting in localLog, Intex : %v, Entry : %v ",currentIndex,le)
+			c.logger.Println("Follower State : Inserting in localLog, Intex : %v, Entry : %v ", currentIndex, le)
 		}
 		currentIndex++
-	} 				
-	return  currentIndex-1, nil	
+	}
+	return currentIndex - 1, nil
 }
-
 
 // follower method implements the follower state
 func (c *consensus) follower() int {
@@ -542,7 +528,7 @@ func (c *consensus) follower() int {
 	c.updateLastLogIndex()
 	for {
 		if c.commitIndex > c.lastApplied {
-			for i := c.lastApplied+1 ; i <= c.commitIndex ; i++ {
+			for i := c.lastApplied + 1; i <= c.commitIndex; i++ {
 				if LOG >= HIGH {
 					c.logger.Printf("Follower State : Apply Log in State Machie, LogIndex %v", i)
 				}
@@ -569,17 +555,17 @@ func (c *consensus) follower() int {
 					continue
 				}
 				term := int64(data.Term)
-				if c. currentTerm < term {
+				if c.currentTerm < term {
 					if LOG >= INFO {
 						c.logger.Println("Follower State : Got AppendEntry From Higher Term")
 					}
 					in_leaderTracker <- true
-					
+
 					// updating Leader Status
 					c.lStatus.status = true
 					c.lStatus.pidOfLeader = data.LeaderId
-					c.markVote(term,data.LeaderId)	
-					result,nextIndexRequest,err := c.verifyPrevLogTermIndex(data.PrevLogTerm, data.PrevLogIndex)
+					c.markVote(term, data.LeaderId)
+					result, nextIndexRequest, err := c.verifyPrevLogTermIndex(data.PrevLogTerm, data.PrevLogIndex)
 					if err != nil {
 						if LOG >= INFO {
 							c.logger.Printf("Follower State : Error: \n")
@@ -590,54 +576,54 @@ func (c *consensus) follower() int {
 							c.logger.Printf("Follower State : Error: \n")
 						}
 						continue
-					}					
-					if result == false || data.Entries == nil || len(data.Entries) == 0{
-						c.sendNewResponseToken(env.Pid,result,nextIndexRequest)
 					}
-					
-					c.purgeLog(data.PrevLogIndex+1) 
-		
-					currentIndex := data.PrevLogIndex+1
-					c.lastLogIndex, err = c.enterInLocalLog(currentIndex,data.Entries)
+					if result == false || data.Entries == nil || len(data.Entries) == 0 {
+						c.sendNewResponseToken(env.Pid, result, nextIndexRequest)
+					}
+
+					c.purgeLog(data.PrevLogIndex + 1)
+
+					currentIndex := data.PrevLogIndex + 1
+					c.lastLogIndex, err = c.enterInLocalLog(currentIndex, data.Entries)
 					if err != nil {
 						continue
 					}
-										  
+
 					// update the commit Index
 					if data.LeaderCommit > c.commitIndex {
-						c.commitIndex = data.LeaderCommit 
+						c.commitIndex = data.LeaderCommit
 						if c.commitIndex > c.lastLogIndex {
 							c.commitIndex = c.lastLogIndex
-						} 
+						}
 					}
-					
+
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Append Entry With Log : Reply Success ")
 					}
-					c.sendNewResponseToken(env.Pid,true, c.lastLogIndex+1) 
+					c.sendNewResponseToken(env.Pid, true, c.lastLogIndex+1)
 				} else if c.currentTerm > term {
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Append Entry from lower term  : Reply Fail ")
 					}
-					c.sendNewResponseToken(env.Pid,false, c.lastLogIndex+1)
+					c.sendNewResponseToken(env.Pid, false, c.lastLogIndex+1)
 				} else if c.currentTerm == term {
 					// if in current term recived HB from some different Leader
-					if  c.lStatus.status == true && c.lStatus.pidOfLeader != data.LeaderId {
+					if c.lStatus.status == true && c.lStatus.pidOfLeader != data.LeaderId {
 						if LOG >= INFO {
 							c.logger.Println("Follower State : Error: More then one leader in same term")
 						}
 						os.Exit(0)
 						continue
 					}
-				
+
 					in_leaderTracker <- true
 					if c.lStatus.status == false {
 						c.lStatus.status = true
 						c.lStatus.pidOfLeader = data.LeaderId
-						c.markVote(term,data.LeaderId)
+						c.markVote(term, data.LeaderId)
 					}
-					
-					result,nextIndexRequest,err := c.verifyPrevLogTermIndex(data.PrevLogTerm, data.PrevLogIndex)
+
+					result, nextIndexRequest, err := c.verifyPrevLogTermIndex(data.PrevLogTerm, data.PrevLogIndex)
 					if err != nil {
 						if LOG >= INFO {
 							c.logger.Printf("Follower State : Error: \n")
@@ -648,32 +634,32 @@ func (c *consensus) follower() int {
 							c.logger.Printf("Follower State : Error: \n")
 						}
 						continue
-					}					
-					if result == false || data.Entries == nil || len(data.Entries) == 0{
-						c.sendNewResponseToken(env.Pid,result,nextIndexRequest)
 					}
-					
-					c.purgeLog(data.PrevLogIndex+1) 
-		
-					currentIndex := data.PrevLogIndex+1
-					c.lastLogIndex, err = c.enterInLocalLog(currentIndex,data.Entries)
+					if result == false || data.Entries == nil || len(data.Entries) == 0 {
+						c.sendNewResponseToken(env.Pid, result, nextIndexRequest)
+					}
+
+					c.purgeLog(data.PrevLogIndex + 1)
+
+					currentIndex := data.PrevLogIndex + 1
+					c.lastLogIndex, err = c.enterInLocalLog(currentIndex, data.Entries)
 					if err != nil {
 						continue
 					}
-										  
+
 					// update the commit Index
 					if data.LeaderCommit > c.commitIndex {
-						c.commitIndex = data.LeaderCommit 
+						c.commitIndex = data.LeaderCommit
 						if c.commitIndex > c.lastLogIndex {
 							c.commitIndex = c.lastLogIndex
-						} 
+						}
 					}
-					
+
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Append Entry With Log : Reply Success ")
 					}
-					c.sendNewResponseToken(env.Pid,true, c.lastLogIndex+1)
-				} 
+					c.sendNewResponseToken(env.Pid, true, c.lastLogIndex+1)
+				}
 			case msg.MsgCode == VOTEREQUEST:
 				if LOG >= HIGH {
 					c.logger.Println("Follower State: Got Vote Request from ", env.Pid)
@@ -694,13 +680,13 @@ func (c *consensus) follower() int {
 					c.sendNewVoteResponseToken(env.Pid, false)
 					// if not voted or voted for candidate Id )
 				} else if c.currentTerm < term {
-				 	if LOG >= HIGH {
-							c.logger.Println("Follower State : Request from higer term")
+					if LOG >= HIGH {
+						c.logger.Println("Follower State : Request from higer term")
 					}
-					if c.verifyLastLogTermIndex(data.LastLogTerm,data.LastLogIndex) {
+					if c.verifyLastLogTermIndex(data.LastLogTerm, data.LastLogIndex) {
 						in_leaderTracker <- true
 						c.markVote(term, int(data.CandidateId))
-						c.lStatus.status= false
+						c.lStatus.status = false
 						if LOG >= HIGH {
 							c.logger.Println("Follower State : LastLog Varification: Successful Giving Vote")
 						}
@@ -711,21 +697,21 @@ func (c *consensus) follower() int {
 						}
 						c.sendNewVoteResponseToken(env.Pid, false)
 					}
-				} else if ((c.lStatus.votedFor == -1) || c.lStatus.votedFor == data.CandidateId ){
+				} else if (c.lStatus.votedFor == -1) || c.lStatus.votedFor == data.CandidateId {
 					if LOG >= HIGH {
-						if ( c.lStatus.votedFor == -1 ) {
+						if c.lStatus.votedFor == -1 {
 							c.logger.Println("Follower State : Not Voted Yet")
 						} else {
 							c.logger.Println("Follower State : Already voted to same candidate")
 						}
 					}
-					if c.verifyLastLogTermIndex(data.LastLogTerm,data.LastLogIndex) {
+					if c.verifyLastLogTermIndex(data.LastLogTerm, data.LastLogIndex) {
 						in_leaderTracker <- true
 						c.markVote(term, int(data.CandidateId))
 						if LOG >= HIGH {
 							c.logger.Println("Follower State : LastLog Term and Index Varification: Successful Giving Vote")
 						}
-						c.sendNewVoteResponseToken(env.Pid, true)	
+						c.sendNewVoteResponseToken(env.Pid, true)
 					} else {
 						if LOG >= HIGH {
 							c.logger.Println("Follower State : LastLog Term and Index Varification: Failed : Rejecting request")
@@ -733,7 +719,7 @@ func (c *consensus) follower() int {
 						c.sendNewVoteResponseToken(env.Pid, false)
 					}
 				} else {
-					if LOG >= HIGH  {
+					if LOG >= HIGH {
 						c.logger.Println("Follower State : Alreadly voted to different candidate")
 					}
 					c.sendNewVoteResponseToken(env.Pid, false)
@@ -753,8 +739,8 @@ func (c *consensus) follower() int {
 		case <-out_leaderTracker:
 			return CANDIDATE
 		case <-c.outRaft:
-			lItem := LogItem{ Index : -1 , Data : c.lStatus.pidOfLeader}
-			c.inRaft <- &lItem		
+			lItem := LogItem{Index: -1, Data: c.lStatus.pidOfLeader}
+			c.inRaft <- &lItem
 		case <-c.shutdownChan:
 			in_leaderTracker <- false
 			if LOG >= HIGH {
@@ -772,13 +758,12 @@ func (c *consensus) markVote(term int64, candidateId int) {
 }
 
 func (c *consensus) sendVoteRequestToken(pid int) {
-	voteReq := VoteRequestToken{Term: c.currentTerm,CandidateId: c.pid, LastLogIndex: c.lastLogIndex, LastLogTerm:c.lastLogTerm }
+	voteReq := VoteRequestToken{Term: c.currentTerm, CandidateId: c.pid, LastLogIndex: c.lastLogIndex, LastLogTerm: c.lastLogTerm}
 	reqMsg := cluster.Message{MsgCode: VOTEREQUEST, Msg: voteReq}
 	msgId := c.getMsgId()
 	replyEnv := &cluster.Envelope{Pid: pid, MsgId: msgId, MsgType: cluster.CTRL, Msg: reqMsg}
 	c.sendMessage(replyEnv)
 }
-
 
 // follower method implements the candidate state
 func (c *consensus) candidate() int {
@@ -801,8 +786,8 @@ func (c *consensus) candidate() int {
 
 	// update LastLogIndex
 	c.lastLogIndex = c.dbInterface.GetLastLogIndex()
-	c.lastLogTerm = c.dbInterface.GetLastLogTerm() 
-	
+	c.lastLogTerm = c.dbInterface.GetLastLogTerm()
+
 	c.sendVoteRequestToken(cluster.BROADCAST)
 
 	for {
@@ -819,8 +804,8 @@ func (c *consensus) candidate() int {
 					}
 					continue
 				}
-				
-				// canmdidate will treat all the AppendEntries as HB only 
+
+				// canmdidate will treat all the AppendEntries as HB only
 				if c.currentTerm <= int64(data.Term) {
 					if LOG >= HIGH {
 						c.logger.Println("Candidate State : Recived HeatBeat with higher term or equal term==> Leader Elected.")
@@ -860,8 +845,8 @@ func (c *consensus) candidate() int {
 				} else if c.currentTerm < term {
 					if LOG >= HIGH {
 						c.logger.Println("Candidate State : Vote Request with  higher")
-					} 
-					if c.verifyLastLogTermIndex(data.LastLogTerm,data.LastLogIndex) {
+					}
+					if c.verifyLastLogTermIndex(data.LastLogTerm, data.LastLogIndex) {
 						if LOG >= HIGH {
 							c.logger.Println("Candidate State : The vericication of Last Term and Index: Succeded : Giving Vote")
 						}
@@ -869,9 +854,9 @@ func (c *consensus) candidate() int {
 						c.sendNewVoteResponseToken(env.Pid, true)
 						in_leaderTracker <- false
 						if LOG >= HIGH {
-								c.logger.Println("Candidate State : Enabling Follower State")
+							c.logger.Println("Candidate State : Enabling Follower State")
 						}
-						return FOLLOWER							
+						return FOLLOWER
 					} else {
 						if LOG >= HIGH {
 							c.logger.Println("Candidate State : The vericication of Last Term and Index failed")
@@ -923,7 +908,7 @@ func (c *consensus) candidate() int {
 						in_leaderTracker <- false
 						return LEADER
 					}
-				} 
+				}
 			default:
 				c.logger.Println("Case Not handled")
 				os.Exit(0)
@@ -943,29 +928,28 @@ func (c *consensus) candidate() int {
 	}
 }
 
-
-func (c * consensus) sendAppendEntry(heartBeat bool) {
-	for pid, nIndex := range c.nextIndex{
+func (c *consensus) sendAppendEntry(heartBeat bool) {
+	for pid, nIndex := range c.nextIndex {
 		if c.lastLogIndex >= nIndex {
 			// send the Append Entry
-			lEntry , err := c.dbInterface.Get(nIndex) 
+			lEntry, err := c.dbInterface.Get(nIndex)
 			if err != nil {
 				if LOG > INFO {
 					c.logger.Printf("Error : Cound not send log entry")
 				}
-				return 
-			} 
+				return
+			}
 			if lEntry == nil {
 				if LOG > INFO {
-					c.logger.Printf("Error : No entry present at the log for nIndex : %v",nIndex)
+					c.logger.Printf("Error : No entry present at the log for nIndex : %v", nIndex)
 				}
 				return
 			}
-			 
+
 			// logIndex can not be less then 1
-			prevLogIndex := nIndex-1
+			prevLogIndex := nIndex - 1
 			var prevLogTerm int64
-			if prevLogIndex == 0 {		
+			if prevLogIndex == 0 {
 				prevLogTerm = int64(0)
 			} else {
 				prevLogTerm, err := c.dbInterface.GetTerm(prevLogIndex)
@@ -973,25 +957,25 @@ func (c * consensus) sendAppendEntry(heartBeat bool) {
 					if LOG >= INFO {
 						c.logger.Printf("Error : Cound not send log entry")
 					}
-					return 
+					return
 				}
-				
-			}  
-			entries := make ([]LogEntry,0)
-			entries = append(entries,*lEntry) 
-			aEntry := AppendEntriesToken{Term : c.currentTerm,LeaderId : c.pid, PrevLogIndex: prevLogIndex , PrevLogTerm: prevLogTerm, Entries:entries , LeaderCommit:c.commitIndex}
+
+			}
+			entries := make([]LogEntry, 0)
+			entries = append(entries, *lEntry)
+			aEntry := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid, PrevLogIndex: prevLogIndex, PrevLogTerm: prevLogTerm, Entries: entries, LeaderCommit: c.commitIndex}
 			msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: aEntry}
 			env := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: msg}
 			if LOG > INFO {
-					c.logger.Printf("Sending HB %+v \n", env)
+				c.logger.Printf("Sending HB %+v \n", env)
 			}
-			c.sendMessage(env)				 
-		} else if heartBeat == true{
+			c.sendMessage(env)
+		} else if heartBeat == true {
 			//simplySendHB with out entries
-			prevLogIndex := nIndex-1
+			prevLogIndex := nIndex - 1
 			var prevLogTerm int64
 			var err error
-			if prevLogIndex == int64(0) {		
+			if prevLogIndex == int64(0) {
 				prevLogTerm = int64(0)
 			} else {
 				prevLogTerm, err = c.dbInterface.GetTerm(prevLogIndex)
@@ -999,89 +983,89 @@ func (c * consensus) sendAppendEntry(heartBeat bool) {
 					if LOG >= INFO {
 						c.logger.Printf("Error : Cound not send log entry")
 					}
-					return 
+					return
 				}
-			}   
-			aEntry := AppendEntriesToken{Term : c.currentTerm,LeaderId : c.pid, PrevLogIndex: prevLogIndex , PrevLogTerm: prevLogTerm , LeaderCommit:c.commitIndex}
+			}
+			aEntry := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid, PrevLogIndex: prevLogIndex, PrevLogTerm: prevLogTerm, LeaderCommit: c.commitIndex}
 			msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: aEntry}
 			env := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: msg}
 			if LOG > INFO {
-					c.logger.Printf("Sending HB %+v \n", env)
+				c.logger.Printf("Sending HB %+v \n", env)
 			}
-			c.sendMessage(env)				 
+			c.sendMessage(env)
 		}
-	}	
+	}
 }
 
 func (c *consensus) updateCommitIndex() {
-		nextCommitIndex := c.commitIndex+1
-		// search for largest Index which can be commited
-		majority := len(c.nextIndex)/2
-		
+	nextCommitIndex := c.commitIndex + 1
+	// search for largest Index which can be commited
+	majority := len(c.nextIndex) / 2
+
+	if LOG >= FINE {
+		c.logger.Printf("Updating CommitIndex\n")
+		c.logger.Printf("NextIndex : %v\n", c.nextIndex)
+		c.logger.Printf("MatchIndex : %v\n", c.matchIndex)
+	}
+
+	for {
+		count := 0
+		for _, v := range c.matchIndex {
+			if v >= nextCommitIndex {
+				count++
+			}
+		}
+		if count >= majority {
+			nextCommitIndex++
+		} else {
+			nextCommitIndex--
+			break
+		}
+	}
+
+	if nextCommitIndex > c.commitIndex {
 		if LOG >= FINE {
-			c.logger.Printf("Updating CommitIndex\n")
-			c.logger.Printf("NextIndex : %v\n",c.nextIndex)
-			c.logger.Printf("MatchIndex : %v\n",c.matchIndex)
+			c.logger.Printf("nextCommitIndex: %v, currentCommitIndex : %v\n", nextCommitIndex, c.commitIndex)
+
 		}
-		
-		for {
-			count := 0
-			for _, v := range c.matchIndex {
-				if v >= nextCommitIndex {
-					count++
-				}
+		term, err := c.dbInterface.GetTerm(nextCommitIndex)
+		if err != nil {
+			if LOG >= INFO {
+				c.logger.Printf("Error : %v\n", err)
 			}
-			if count >= majority {
-				nextCommitIndex++				
-			} else {
-				nextCommitIndex--
-				break
-			}
+			return
+		} else if term == -1 {
+			c.logger.Printf(" Error : Invalid Term\n")
+		} else if term == c.currentTerm {
+			c.commitIndex = nextCommitIndex
 		}
-		
-		if nextCommitIndex > c.commitIndex {
-			if LOG >= FINE {
-				c.logger.Printf("nextCommitIndex: %v, currentCommitIndex : %v\n",nextCommitIndex,c.commitIndex)
-		
-			}	
-			term, err := c.dbInterface.GetTerm(nextCommitIndex)
-			if err != nil {
-				if LOG >= INFO {
-					c.logger.Printf("Error : %v\n", err)
-				}
-				return 
-			} else if term == -1 {
-					c.logger.Printf(" Error : Invalid Term\n")
-			} else if term == c.currentTerm {
-					c.commitIndex = nextCommitIndex
-			}
-		} 
+	}
 }
 
-func (c * consensus)updateLastAppliedIndex() {
+func (c *consensus) updateLastAppliedIndex() {
 	if c.commitIndex > c.lastApplied {
-		for i := c.lastApplied+1 ; i <= c.commitIndex ; i++ {
+		for i := c.lastApplied + 1; i <= c.commitIndex; i++ {
 			if LOG >= HIGH {
 				c.logger.Printf("Follower State : Apply Log in State Machie, LogIndex %v", i)
 			}
-			c.inRaft <- &LogItem{Index : i , Data: "Ok" }
+			c.inRaft <- &LogItem{Index: i, Data: "Ok"}
 		}
 		c.lastApplied = c.commitIndex
 	}
 }
 
-func (c * consensus)updateLastLogIndex() {
+func (c *consensus) updateLastLogIndex() {
 	c.lastLogIndex = c.dbInterface.GetLastLogIndex()
 	c.lastLogTerm = c.dbInterface.GetLastLogTerm()
 }
 
-func (c* consensus)initializeNextAndMatchIndex(){
+func (c *consensus) initializeNextAndMatchIndex() {
 	peers := c.server.Peers()
-	for i := 0 ; i < len(peers) ; i++ {
+	for i := 0; i < len(peers); i++ {
 		c.nextIndex[peers[i]] = c.lastLogIndex + 1
 	}
 	// initailizing match index
-	for i := 0 ; i < len(peers) ; i++ {
+	for i := 0; i < len(peers); i++ {
 		c.matchIndex[peers[i]] = 0
 	}
 }
@@ -1095,40 +1079,40 @@ func (c *consensus) leader() int {
 	c.lStatus.status = true
 	c.lStatus.pidOfLeader = c.pid
 
-	// update lastLog term and index	  
+	// update lastLog term and index
 	c.updateLastLogIndex()
-		
+
 	//initialize the nextIndex for each server
 	c.initializeNextAndMatchIndex()
-	
+
 	if LOG >= FINE {
-		c.logger.Printf("Leader State : nextIndex %v \n",c.nextIndex)
-		c.logger.Printf("Leader State : matchIndex %v \n",c.matchIndex)
+		c.logger.Printf("Leader State : nextIndex %v \n", c.nextIndex)
+		c.logger.Printf("Leader State : matchIndex %v \n", c.matchIndex)
 	}
-	
+
 	// sendIntialHB
 	c.sendAppendEntry(true)
 	lastHeartBeatTimeStamp := time.Now()
-	
+
 	for {
 		//updateCommit Index and lastApplied Index
 		c.updateCommitIndex()
 		c.updateLastAppliedIndex()
-		
+
 		// sendHB if necessary
 		t := lastHeartBeatTimeStamp
 		prevTimeStamp := t.Add(c.heartBeatInterval)
 		if LOG >= FINE {
 			//c.logger.Printf("Leader State : last HB TimeS : %v , prevTimeS : %v , NOW : %v \n", t, prevTimeStamp, time.Now())
 		}
-		if (prevTimeStamp.Before(time.Now())) {
+		if prevTimeStamp.Before(time.Now()) {
 			// need to send a HB
 			if LOG >= FINE {
 				c.logger.Printf("Leader State : Sending HB\n")
 			}
 			lastHeartBeatTimeStamp = time.Now()
 			c.sendAppendEntry(true)
-		}	 
+		}
 		select {
 		case env := <-c.server.Inbox():
 			msg := getMessage(env)
@@ -1148,10 +1132,10 @@ func (c *consensus) leader() int {
 					}
 					// another leader is present in with higher term
 					c.markVote(term, int(data.LeaderId))
-					c.lStatus.status=true
-					c.lStatus.pidOfLeader=data.LeaderId 
+					c.lStatus.status = true
+					c.lStatus.pidOfLeader = data.LeaderId
 					c.logger.Println("Leader State : Downgrading to follower")
-					c.sendNewResponseToken(env.Pid, false,c.lastLogIndex)
+					c.sendNewResponseToken(env.Pid, false, c.lastLogIndex)
 					return FOLLOWER
 				} else if c.currentTerm == term {
 					if LOG >= INFO {
@@ -1173,13 +1157,13 @@ func (c *consensus) leader() int {
 				}
 				term := int64(data.Term)
 				//c.logger.Println("Leader State : Response Message Id %v, Msg %v  ", env.MsgId ,data,)
-				if c.currentTerm < term  {
+				if c.currentTerm < term {
 					c.logger.Println("Leader State : Got Negative HB Response")
 					c.logger.Println("Leader State : Downgrading to follower")
 					c.markVote(term, -1)
 					c.lStatus.status = false
 					return FOLLOWER
-				}  else if c.currentTerm > term {
+				} else if c.currentTerm > term {
 					c.logger.Println("Leader State : Got Response from lower term... rejecting")
 				} else if data.Success == true {
 					// LogResponse has been applied
@@ -1187,26 +1171,26 @@ func (c *consensus) leader() int {
 						c.logger.Printf("Leader State : Got Replication Response from %v", env.Pid)
 					}
 					// HB Respose success : LogResponse : Applied
-					replier :=	env.Pid 
-				  	c.nextIndex[replier] = data.NextIndex
-				  	if ok == false {
-				  		if LOG >= INFO {
-				  			c.logger.Printf("Leader State : Cound not find the log Entry for the %v", replier)
-				  		}
-				  		continue
-				  	} 
-				  	c.matchIndex[replier] = data.NextIndex -1
-				  	if LOG >= HIGH {
-				  		c.logger.Printf("Leader State : Raft : %v Accepted Log : nextIndex : %v", env.Pid,data.NextIndex)
-				  	}
-				} else if (data.Success == false) {
+					replier := env.Pid
+					c.nextIndex[replier] = data.NextIndex
+					if ok == false {
+						if LOG >= INFO {
+							c.logger.Printf("Leader State : Cound not find the log Entry for the %v", replier)
+						}
+						continue
+					}
+					c.matchIndex[replier] = data.NextIndex - 1
+					if LOG >= HIGH {
+						c.logger.Printf("Leader State : Raft : %v Accepted Log : nextIndex : %v", env.Pid, data.NextIndex)
+					}
+				} else if data.Success == false {
 					// HB Respose : Failed : LogRepose : decresse it
-					replier :=	env.Pid 
-				  	c.nextIndex[replier] = data.NextIndex 
-				  	if LOG >= HIGH {
-				  		c.logger.Printf("Leader State : Raft : %v replied the inconsistent Log for HB : nextIndex : %v", env.Pid,data.NextIndex)
-				  	}
-				  }
+					replier := env.Pid
+					c.nextIndex[replier] = data.NextIndex
+					if LOG >= HIGH {
+						c.logger.Printf("Leader State : Raft : %v replied the inconsistent Log for HB : nextIndex : %v", env.Pid, data.NextIndex)
+					}
+				}
 			case msg.MsgCode == VOTEREQUEST:
 				data := (msg.Msg).(VoteRequestToken)
 				term := int64(data.Term)
@@ -1229,26 +1213,26 @@ func (c *consensus) leader() int {
 					// request from higher term
 					if LOG >= INFO {
 						c.logger.Println("Leader State : Vote Request from higher term")
-					} 
-					if c.verifyLastLogTermIndex(data.LastLogTerm,data.LastLogTerm) {
+					}
+					if c.verifyLastLogTermIndex(data.LastLogTerm, data.LastLogTerm) {
 						if LOG >= INFO {
 							c.logger.Println("Leader State : accepting vote ")
 							c.logger.Println("Leader State : Downgrading to follower ")
-						} 
-						c.lStatus.status = false 
-						c.markVote(term,data.CandidateId)
+						}
+						c.lStatus.status = false
+						c.markVote(term, data.CandidateId)
 						c.sendNewVoteResponseToken(env.Pid, true)
 						return FOLLOWER
 					} else {
 						if LOG >= INFO {
 							c.logger.Println("Leader State : Leader More uptodate...sending Negative Reply")
 							c.logger.Println("Leader State : Because of higher Temr can not be leader any more moving to Follower")
-						}	
+						}
 						c.sendNewVoteResponseToken(env.Pid, false)
-						c.lStatus.status = false 
-						c.markVote(term,-1)
+						c.lStatus.status = false
+						c.markVote(term, -1)
 						return FOLLOWER
-					} 
+					}
 				}
 			case msg.MsgCode == VOTERESPONSE:
 				if LOG >= HIGH {
@@ -1272,21 +1256,18 @@ func (c *consensus) leader() int {
 				c.logger.Printf("Leader State : Stopped\n")
 			}
 			return STOP
-		case <- time.After(c.heartBeatInterval):
+		case <-time.After(c.heartBeatInterval):
 			continue
-		case cmd := <- c.outRaft:
+		case cmd := <-c.outRaft:
 			if LOG >= HIGH {
 				c.logger.Printf("Leader State : Got commod for replication\n")
-			} 
+			}
 			c.WriteToLocalLog(cmd)
 			// as new request has been arrieved send a new entry
 			c.sendAppendEntry(false)
 		}
 	}
 }
-
-
-
 
 // sentMessage send the message to underlying cluster
 func (c *consensus) sendMessage(env *cluster.Envelope) bool {
@@ -1311,7 +1292,7 @@ func (c *consensus) sendNewVoteResponseToken(pid int, flag bool) {
 }
 
 func (c *consensus) getNewResponseToken(flag bool, nextIndex int64) *cluster.Message {
-	vote := ResponseToken{Term : c.currentTerm, Success :flag, NextIndex : nextIndex}
+	vote := ResponseToken{Term: c.currentTerm, Success: flag, NextIndex: nextIndex}
 	replyMsg := cluster.Message{MsgCode: RESPONSE, Msg: vote}
 	return &replyMsg
 }
@@ -1351,13 +1332,12 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	}
 
 	c.server = *server
-	
 
 	//TODO :Chech this condition
 	// Each of the server will start as the follower, or it sould be previously failed condition
 	c.state = FOLLOWER
 	c.filePath = c.dataDir + "/" + FILENAME + strconv.Itoa(c.pid)
-	
+
 	c.dbPath = c.dataDir + "/" + DATABASE_NAME + strconv.Itoa(c.pid)
 
 	// Check if file exist from previos failure
@@ -1386,13 +1366,13 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 				c.logger.Printf("Raft %v :Meta file does not exist\n", c.pid)
 			}
 		}
-		
+
 		// destroying previous log database
-		err = DestroyDatabase(c.dbPath) 
+		err = DestroyDatabase(c.dbPath)
 		if err != nil {
-			return false , err
+			return false, err
 		}
-		 
+
 		file, err := os.Create(c.filePath)
 		defer file.Close()
 		if err != nil {
@@ -1413,32 +1393,31 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	}
 	// Leader Status
 	c.lStatus = leaderStatus{-1, 0 * time.Second, false, 0}
-		
-	
-	// added for supporting second phase   	
+
+	// added for supporting second phase
 	c.outRaft = make(chan interface{}, 100)
-	c.inRaft = make (chan *LogItem, 100 )
+	c.inRaft = make(chan *LogItem, 100)
 	c.commitIndex = 0
 	c.lastApplied = 0
-	
-	c.dbInterface = GetDBInterface(c.pid,c.logger)
-	
+
+	c.dbInterface = GetDBInterface(c.pid, c.logger)
+
 	err = c.dbInterface.OpenConnection(c.dbPath)
 	if err != nil {
 		if LOG >= INFO {
 			c.logger.Printf("Database connection failed %v \n", err)
-			return false , err
+			return false, err
 		}
 	}
-	
-	// this would be initialized by leader after each leader election 
-	c.nextIndex = make(map[int]int64,0)
-	c.matchIndex = make(map[int]int64,0)
-	
-	// update the lastLogIndex 
+
+	// this would be initialized by leader after each leader election
+	c.nextIndex = make(map[int]int64, 0)
+	c.matchIndex = make(map[int]int64, 0)
+
+	// update the lastLogIndex
 	c.lastLogIndex = c.dbInterface.GetLastLogIndex()
 	c.lastLogTerm = c.dbInterface.GetLastLogTerm()
-	
+
 	c.delayChan = make(chan time.Duration, 2)
 	c.shutdownChan = make(chan bool, 0)
 	rand.Seed(int64(c.pid))

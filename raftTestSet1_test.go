@@ -87,7 +87,6 @@ func shutdownRaft(num int, r []*consensus) {
 	}
 }
 
-
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -103,7 +102,6 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	time.Sleep(5 * time.Second)
 	ok, _ = checkLeaderShip(rObj)
 
-	
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
 	if ok == false {
@@ -112,12 +110,10 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 
 }
 
-
-
 // This will few commands and will check whether they are successfully replicated
 
 // This test willl check weather servers are handling request properly
-// leader should handle request and other should resturn the leaderID 
+// leader should handle request and other should resturn the leaderID
 func TestRaft_SingleCommandTest(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -131,27 +127,27 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 	}
 
 	time.Sleep(10 * time.Second)
-	
+
 	// send a commond on outbox of every one
-	// only leader will accept and 
+	// only leader will accept and
 	// other should reply the current leader
 	var reply *LogItem
 	count := 0
-	for i := 0 ; i < NOFRAFT ; i++ { 
+	for i := 0; i < NOFRAFT; i++ {
 		leader := i
-		LOOP1:
+	LOOP1:
 		for {
 			rObj[leader].Outbox() <- "Add"
 			select {
-				case reply = <-rObj[leader].Inbox():
-						//
-				case <-time.After(3*time.Second):
+			case reply = <-rObj[leader].Inbox():
+				//
+			case <-time.After(3 * time.Second):
 				//	log.Printf("Resending to  : %v",leader)
-					continue
+				continue
 			}
 			if reply.Index == -1 {
 				//log.Println("reply : %v",reply)
-				leader = reply.Data.(int) 	
+				leader = reply.Data.(int)
 			} else {
 				count++
 				//log.Printf("Reply : %v",reply)
@@ -161,20 +157,19 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 	}
 
 	shutdownServer(NOFSERVER, sObjs)
-	shutdownRaft(NOFSERVER, rObj)	
-	
+	shutdownRaft(NOFSERVER, rObj)
+
 	if count != 3 {
-		t.Errorf("All machine did not reponded ")	
+		t.Errorf("All machine did not reponded ")
 	}
 }
 
-// This test check 
+// This test check
 // 1. Stop the leader case (delayed leader)
 // 2. All the server must have same log
 
-
 func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
-	
+
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -189,73 +184,71 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 	time.Sleep(8 * time.Second)
 	// send a commond on outbox of every one
 	// only leader will accept and
-	
-	leader := 0	
-	
-	for i:= 0 ; i < 5 ; i++ {
-		LOOP1:
+
+	leader := 0
+
+	for i := 0; i < 5; i++ {
+	LOOP1:
 		for {
-	//		log.Printf("Leader : %v",leader)
+			//		log.Printf("Leader : %v",leader)
 			rObj[leader].Outbox() <- "Add"
 			reply := <-rObj[leader].Inbox()
 			if reply.Index == -1 {
-				leader = reply.Data.(int) 	
+				leader = reply.Data.(int)
 			} else {
-		//		log.Printf("Reply : %v",reply)
+				//		log.Printf("Reply : %v",reply)
 				break LOOP1
 			}
 		}
-	} 
-	
+	}
+
 	// introduce delay
-	rObj[leader].Delay(10*time.Second)
+	rObj[leader].Delay(10 * time.Second)
 	var reply *LogItem
-	for i:= 0 ; i < 5 ; i++ {
-		LOOP2:
+	for i := 0; i < 5; i++ {
+	LOOP2:
 		for {
 			//log.Printf("Leader : %v",leader)
 			rObj[leader].Outbox() <- "Add"
 			select {
-				case reply = <-rObj[leader].Inbox():
-						//
-				case <-time.After(3*time.Second):
+			case reply = <-rObj[leader].Inbox():
+				//
+			case <-time.After(3 * time.Second):
 				//	log.Printf("Resending to  : %v",leader)
-					continue
+				continue
 			}
 			if reply.Index == -1 {
-				leader = reply.Data.(int) 	
+				leader = reply.Data.(int)
 			} else {
-			//	log.Printf("Reply : %v",reply)
+				//	log.Printf("Reply : %v",reply)
 				break LOOP2
 			}
 		}
 	}
-	time.Sleep(10*time.Second)
-	
-	indexes := make([]int64,0)
-	terms:=  make([]int64,0)
-	for i := 0 ; i < NOFRAFT ; i++ {
+	time.Sleep(10 * time.Second)
+
+	indexes := make([]int64, 0)
+	terms := make([]int64, 0)
+	for i := 0; i < NOFRAFT; i++ {
 		index, term := rObj[i].LastLogIndexAndTerm()
-		indexes = append(indexes,index)
-		terms = append(terms,term)
+		indexes = append(indexes, index)
+		terms = append(terms, term)
 		//log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)
-		//rObj[i].PrintLog()	
+		//rObj[i].PrintLog()
 	}
-	
+
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
-	
-	for i := 0 ; i < len(indexes)-1 ; i++ {
-		if ( indexes[i] != indexes[i+1] || terms[i] != terms[i+1] ) {
-			t.Errorf("The Log is not same on all the servers")		
+
+	for i := 0; i < len(indexes)-1; i++ {
+		if indexes[i] != indexes[i+1] || terms[i] != terms[i+1] {
+			t.Errorf("The Log is not same on all the servers")
 		}
-		
+
 	}
 }
 
-
-
-
+/*
 func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 
 	sObjs, err := makeDummyServer(NOFSERVER)
@@ -279,7 +272,7 @@ func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 		t.Errorf("No Leader Present in term \n ")
 	} else {
 		rObj[leader].Delay(5 * time.Second)
-	
+
 
 		time.Sleep(15 * time.Second)
 		ok, _ = checkLeaderShip(rObj)
@@ -292,7 +285,7 @@ func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 }
 
 
-
+*/
 
 /*
 // This will few commands and will check whether they are successfully replicated
@@ -311,22 +304,20 @@ func TestRaft_MultipleCommondTest(t *testing.T) {
 	time.Sleep(10 * time.Second)
 	// send a commond on outbox of every one
 	// only leader will accept and
-	
+
 	// assuming leader is 1
 	leader := 1
-	 
+
 	for i := 0 ; i < 10 ; i++ {
 		rObj[leader].Outbox() <- "Add"
 		reply := <-rObj[leader].Inbox()
 		log.Printf("reply %v\n", reply)
 		if reply.Index == -1 {
-			leader = reply.Data 
+			leader = reply.Data
 		}
 	}
-	
+
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
 }
 */
-
-
