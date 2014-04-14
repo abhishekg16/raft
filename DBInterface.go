@@ -85,7 +85,7 @@ func (e *DBEncoder) DecodeValue(data []byte) (*LogEntry, error) {
 	var key LogEntry
 	err := dec.Decode(&key)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Error :%v\n",err)
 	}
 	return &key, nil
 }
@@ -149,7 +149,7 @@ func (di *DBInterface) GetTerm(key int64) (int64, error) {
 		return -1, err
 	}
 	if LOG >= FINE {
-		di.logger.Printf("Raft DBInterface %v: GET: logEntry For Index %v : %v \n", di.id, key, lEntry)
+		di.logger.Printf("Raft DBInterface %v: GET: logEntry For Index %v : %+v \n", di.id, key, lEntry)
 	}
 	if lEntry != nil {
 		return lEntry.Term, nil

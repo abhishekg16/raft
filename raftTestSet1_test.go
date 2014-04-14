@@ -4,13 +4,22 @@ import "testing"
 import cluster "github.com/abhishekg16/cluster"
 import "log"
 import "time"
+import db "github.com/abhishekg16/raft/dataBaseConnection"
+import "strconv"
 
 const (
 	NOFSERVER        = 3
 	NOFRAFT          = 3
 	SERVER_LOG_LEVEL = NOLOG
 	RAFT_LOG_LEVEL   = NOLOG
+	TEST_LOG_LEVEL = NOLOG
+	kvDir = "./kvstore"
+	kvName = "kv" 
 )
+
+func init() {
+	log.SetFlags(log.Lshortfile)
+}
 
 func makeDummyServer(num int) ([]cluster.Server, error) {
 	s := make([]cluster.Server, num)
@@ -23,13 +32,34 @@ func makeDummyServer(num int) ([]cluster.Server, error) {
 	}
 	return s, nil
 }
+// this method make keyValue store, name is appended by the num
+func makeKVStores(num int)  error{
+	// destroy the previous databases
+	 
+	for i := 0 ; i < num ; i++ {
+		path := kvDir + "/" + kvName + strconv.Itoa(i)
+		err := db.DestroyDatabase(path)
+		if err != nil {
+			log.Printf("Test : Cound not destroy previous KV the : %v",path )
+			return err 
+		}
+		conn := db.InitializeNewConnection()
+		err = conn.OpenConnection(path)
+		if err != nil {
+			log.Printf("Test : Cound not create connection : %v",path )
+		} 
+		conn.Close()
+	}
+	return nil
+}
 
-func makeRaftInstances(num int, s []cluster.Server) ([]*consensus, bool, error) {
+func makeRaftInstances(num int, s []cluster.Server, ) ([]*consensus, bool, error) {
 	r := make([]*consensus, num)
 	var ok bool
 	var err error
 	for i := 0; i < num; i++ {
-		r[i], ok, err = NewRaft(i, "./conf", RAFT_LOG_LEVEL, &s[i], false)
+		path := kvDir + "/" + kvName + strconv.Itoa(i)
+		r[i], ok, err = NewRaft(i, "./conf", RAFT_LOG_LEVEL, &s[i], path ,false)
 		if ok == false {
 			log.Println("Error Occured : Can in instantiate Raft Instances")
 			return r, false, err
@@ -87,6 +117,8 @@ func shutdownRaft(num int, r []*consensus) {
 	}
 }
 
+
+
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
@@ -110,6 +142,82 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 
 }
 
+
+func TestRaft_PutAndGetTest(t *testing.T) {
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+	time.Sleep(10* time.Second)
+	
+	cmd1 := Command{Cmd : Put , Key : []byte("Key1")  , Value: []byte("value1")}
+
+	var reply *LogItem
+	
+	leader := 0
+	
+	LOOP1:
+	for {
+		rObj[leader].Outbox() <- &cmd1
+		select {
+			case reply = <-rObj[leader].Inbox():
+				//
+			case <-time.After(3 * time.Second):
+		//		log.Printf("Resending to  : %v",leader)
+				continue
+		}
+		if reply.Index == -1 {
+	//		log.Println("reply : %v",reply)
+			leader = reply.Data.(int)
+		} else {
+	//		log.Printf("Reply : %v",reply)
+			break LOOP1
+		}
+	}
+	
+	cmd1 = Command{Cmd : Get , Key : []byte("Key1")  ,}
+	leader = 0
+	LOOP2:
+	for {
+		rObj[leader].Outbox() <- &cmd1
+		select {
+			case reply = <-rObj[leader].Inbox():
+				//
+			case <-time.After(3 * time.Second):
+		//		log.Printf("Resending to  : %v",leader)
+				continue
+		}
+		if reply.Index == -1 {
+	//		log.Println("reply : %v",reply)
+			leader = reply.Data.(int)
+		} else {
+	//			log.Printf("Reply : %v",reply)
+			break LOOP2
+		}
+	}
+	
+	value := (reply.Data).(Result)
+	val := string(value.Value)
+
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+
+	
+	if val  != "value1" {
+		t.Errorf("All machine did not reponded ")
+	}
+	
+}
+
+
+
+/*
 // This will few commands and will check whether they are successfully replicated
 
 // This test willl check weather servers are handling request properly
@@ -127,7 +235,7 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 	}
 
 	time.Sleep(10 * time.Second)
-
+	cmd1 := Command{Cmd : Put , Key : []byte("Key1")  , Value: []byte("value1")}
 	// send a commond on outbox of every one
 	// only leader will accept and
 	// other should reply the current leader
@@ -137,25 +245,33 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 		leader := i
 	LOOP1:
 		for {
-			rObj[leader].Outbox() <- "Add"
+			rObj[leader].Outbox() <- &cmd1
 			select {
 			case reply = <-rObj[leader].Inbox():
 				//
 			case <-time.After(3 * time.Second):
-				//	log.Printf("Resending to  : %v",leader)
+				if TEST_LOG_LEVEL >= HIGH {
+//					log.Printf("Resending to  : %v",leader)
+				}
 				continue
 			}
 			if reply.Index == -1 {
-				//log.Println("reply : %v",reply)
+				if TEST_LOG_LEVEL >= HIGH {
+		//			log.Println("reply : %v",reply)
+				}
 				leader = reply.Data.(int)
 			} else {
 				count++
-				//log.Printf("Reply : %v",reply)
+				if TEST_LOG_LEVEL >= HIGH {
+	//				log.Printf("Reply : %v",reply)
+				}
 				break LOOP1
 			}
 		}
 	}
-
+	for i := 0 ; i < NOFRAFT ; i++{
+		rObj[i].PrintLog()
+	}
 	shutdownServer(NOFSERVER, sObjs)
 	shutdownRaft(NOFSERVER, rObj)
 
@@ -163,13 +279,14 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 		t.Errorf("All machine did not reponded ")
 	}
 }
-
+*/
 // This test check
 // 1. Stop the leader case (delayed leader)
 // 2. All the server must have same log
 
 func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
+	time.Sleep(5*time.Second)
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -187,11 +304,12 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
 	leader := 0
 
+	cmd1 := Command{Cmd : Put , Key : []byte("Key1")  , Value: []byte("value1")}
 	for i := 0; i < 5; i++ {
 	LOOP1:
 		for {
 			//		log.Printf("Leader : %v",leader)
-			rObj[leader].Outbox() <- "Add"
+			rObj[leader].Outbox() <- &cmd1
 			reply := <-rObj[leader].Inbox()
 			if reply.Index == -1 {
 				leader = reply.Data.(int)
@@ -209,18 +327,28 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 	LOOP2:
 		for {
 			//log.Printf("Leader : %v",leader)
-			rObj[leader].Outbox() <- "Add"
+			rObj[leader].Outbox() <- &cmd1
 			select {
-			case reply = <-rObj[leader].Inbox():
-				//
-			case <-time.After(3 * time.Second):
-				//	log.Printf("Resending to  : %v",leader)
-				continue
+				case reply = <-rObj[leader].Inbox():
+					if TEST_LOG_LEVEL >= HIGH { 
+						log.Printf("Reply : %v",reply)
+					}
+				case <-time.After(3 * time.Second):
+					{
+						if TEST_LOG_LEVEL >= HIGH { 
+							log.Printf("Resending to  : %v",leader)
+						}
+						continue
+					}
 			}
 			if reply.Index == -1 {
-				leader = reply.Data.(int)
+				newleader := reply.Data.(int)
+				if (newleader == leader) {
+					// no leader at present
+					time.Sleep(10*time.	Second)
+				}	
+				leader = newleader
 			} else {
-				//	log.Printf("Reply : %v",reply)
 				break LOOP2
 			}
 		}
@@ -234,7 +362,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 		indexes = append(indexes, index)
 		terms = append(terms, term)
 		//log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)
-		//rObj[i].PrintLog()
+		rObj[i].PrintLog()
 	}
 
 	shutdownServer(NOFSERVER, sObjs)
@@ -247,6 +375,207 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
 	}
 }
+
+func findLeader( rObj []*consensus) int{
+	for {
+		for i := 0 ; i < NOFRAFT ; i++ {
+			if (rObj[i] == nil) {
+				continue
+			}
+			if rObj[i].IsLeader() == true {
+				return i 
+			}
+		}
+		if TEST_LOG_LEVEL >= HIGH  {
+			log.Printf("Leader Node elected... Waiting...")
+		}
+		time.Sleep( 3 * time.Second )
+	}
+}
+
+
+/*
+	This method send few command and then restartLeader, mean while system proceed with new command on the new leader.
+	Expected behavious : the restarted machine should get in sync with other machine and eventaully must have same log
+*/
+
+
+func TestRaft_RestartLeader(t *testing.T) {
+
+	time.Sleep(5*time.Second)
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	// inserted delay to allow system to stabalize
+	time.Sleep(8 * time.Second)
+	
+	leader := 0
+	j := 0
+	
+	leader = findLeader(rObj)
+	
+	
+	if TEST_LOG_LEVEL >= HIGH  {
+		log.Printf("Leader is %v ",leader)
+	}	
+		
+
+	for i := 0; i < 3; i++ {
+		if TEST_LOG_LEVEL >= HIGH  {			
+			log.Printf("Sending to Leader : %v",leader)
+		}
+		key := "key" +  strconv.Itoa(j)
+		value := "value" + strconv.Itoa(j)
+		j++
+		cmd1 := Command{Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+		rObj[leader].Outbox() <- &cmd1
+		reply := <-rObj[leader].Inbox()
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Got Reply %+v", reply)
+		}
+	}
+
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf("Shuting down the leader...")
+	}
+	s_stopped := leader
+	sObjs[leader].Shutdown()
+	rObj[leader].Shutdown()
+	sObjs[leader] = nil
+	rObj[leader] = nil
+	time.Sleep(3*time.Second)
+	
+	leader = findLeader(rObj)
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf("New Leader is %v", leader)
+	}
+	
+	for i := 0; i < 2; i++ {
+		if TEST_LOG_LEVEL >= HIGH  {  			
+			log.Printf("Sending to Leader : %v",leader)
+		}
+		key := "key" +  strconv.Itoa(j)
+		value := "value" + strconv.Itoa(j)
+		j++
+		cmd1 := Command{Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+		rObj[leader].Outbox() <- &cmd1
+		reply := <-rObj[leader].Inbox()
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Got Reply %v", reply)
+		}
+	}
+	
+	
+	// restart the stoped server
+	sObjs[s_stopped], err = cluster.New(s_stopped, "./conf/servers.json", nil, SERVER_LOG_LEVEL)
+		path := kvDir + "/" + kvName + strconv.Itoa(s_stopped)
+	rObj[s_stopped], ok, err = NewRaft(s_stopped, "./conf", RAFT_LOG_LEVEL, &sObjs[s_stopped], path ,true)
+	if ok == false {
+		log.Println("Error Occured : Can in instantiate Raft Instances")
+		t.Errorf("Could not instantiate new Instance")
+	}
+	
+	// wait for system to sync 
+	time.Sleep(10 * time.Second)
+
+	// verify the logs
+	indexes := make([]int64, 0)
+	terms := make([]int64, 0)
+	for i := 0; i < NOFRAFT; i++ {
+		index, term := rObj[i].LastLogIndexAndTerm()
+		indexes = append(indexes, index)
+		terms = append(terms, term)
+		//log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)
+		if TEST_LOG_LEVEL >= HIGH{
+			rObj[i].PrintLog()
+		}
+	}
+
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+
+	for i := 0; i < len(indexes)-1; i++ {
+		if indexes[i] != indexes[i+1] || terms[i] != terms[i+1] {
+			t.Errorf("The Log is not same on all the servers")
+		}
+
+	}
+}
+
+
+/*
+	This method check the idempotent prperty. 
+	Test Case : Client send same message multiple time. But system must execute that only once
+*/
+func TestRaft_Idempotent(t *testing.T) {
+
+	time.Sleep(5*time.Second)
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	// inserted delay to allow system to stabalize
+	time.Sleep(8 * time.Second)
+	
+	leader := 0
+	j := 0
+	
+	leader = findLeader(rObj)
+	
+	if TEST_LOG_LEVEL >= HIGH  {
+		log.Printf("Leader is %v ",leader)
+	}	
+		
+	key := "key" +  strconv.Itoa(j)
+	value := "value" + strconv.Itoa(j)
+	j++
+	cmd1 := Command{CmdId : 1, Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+
+	for i := 0; i < 2; i++ {			
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Sending to Leader : %v",leader)
+		}		
+		rObj[leader].Outbox() <- &cmd1
+	}
+	 
+	reply1 := <-rObj[leader].Inbox()
+	reply2 := <-rObj[leader].Inbox()
+
+	
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf ("reply1 : %+v" ,reply1)
+		log.Printf ("reply1 : %+v" ,reply2)
+	}
+	
+	for i := 0 ; i < NOFRAFT ; i++ {
+	//	rObj[i].PrintLog()
+	}
+	
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+	
+	if reply1.Index != -2 {
+		t.Errorf("Same Command Applieded multiple times")
+	} 
+}
+
+
+
 
 /*
 func TestRaft_DelayIntroducedInLeader(t *testing.T) {
@@ -284,8 +613,8 @@ func TestRaft_DelayIntroducedInLeader(t *testing.T) {
 	shutdownRaft(NOFSERVER, rObj)
 }
 
-
 */
+
 
 /*
 // This will few commands and will check whether they are successfully replicated

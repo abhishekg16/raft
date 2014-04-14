@@ -18,28 +18,20 @@ import (
 	"sync"
 	"time"
 	//"flag"
-	//"fmt"
+	"fmt"
 	"encoding/gob"
 	"math/rand"
 	//	"bufio"
 	"strconv"
+	//"reflect"
+	"math"
+	kvs "github.com/abhishekg16/raft/kvstore"
 )
 
 // DEBUG variable will be setup to start server in
 //debug which provide the differt kind of facilities
 var LOG int
-
-// Loginging Structs
-type LogItem struct {
-	Index int64
-	Data  interface{}
-}
-
-// The Log will contains the array of log entries.
-type LogEntry struct {
-	Term    int64
-	Command interface{}
-}
+var timeOutCount int
 
 // This method will remove all the entries which are greater then the
 // lastIndex (inclusive)
@@ -55,6 +47,32 @@ func (c *consensus) purgeLog(s int64) {
 		}
 	}
 	c.updateLastLogIndex()
+}
+
+func (c *consensus)validateCommand(command interface{}) (bool,error) {
+	cmd , ok := command.(*Command)
+	
+	if ok == false {
+		err := fmt.Errorf("Command not in proper format")
+		return 	false,err
+	}
+	// this condition kept to support the previous cases
+	if cmd.CmdId == 0 {
+		return true, nil
+	}
+	if cmd.CmdId < c.commitIndex {
+		err := fmt.Errorf("Command already applied")
+		return 	false,err
+	}
+	if cmd.CmdId <= c.lastLogIndex {
+		err := fmt.Errorf("Command in progess..")
+		return false, err 
+	}
+	if cmd.CmdId != c.lastLogIndex+1 {
+		err := fmt.Errorf("Command is out of order")
+		return false, err
+	}
+	return true, nil
 }
 
 func (c *consensus) WriteToLocalLog(cmd interface{}) {
@@ -152,6 +170,8 @@ type leaderStatus struct {
 type persistentData struct {
 	Term     int64
 	VotedFor int
+	CommitIndex int64
+	LastApplied int64
 }
 
 // This method reads the last persistent data data on the disk
@@ -180,7 +200,7 @@ func (c consensus) writeTerm(currentTerm int64) (bool, error) {
 	if ok == false {
 		return ok, err
 	}
-	c.writeAll(currentTerm, data.VotedFor)
+	c.writeAll(currentTerm, data.VotedFor,data.CommitIndex,data.LastApplied)
 	return true, nil
 }
 
@@ -190,12 +210,30 @@ func (c consensus) writeVotedFor(votedFor int) (bool, error) {
 	if ok == false {
 		return ok, err
 	}
-	c.writeAll(data.Term, votedFor)
+	c.writeAll(data.Term, votedFor,data.CommitIndex,data.LastApplied)
 	return true, nil
 }
 
-func (c consensus) writeAll(currentTerm int64, votedFor int) (bool, error) {
-	data := persistentData{Term: currentTerm, VotedFor: votedFor}
+func (c *consensus) writeCommitIndex(commitIndex int64) (bool, error) {
+	ok , err , data := c.readDisk() 
+	if ok == false {
+		return ok , err
+	} 
+	c.writeAll(data.Term, data.VotedFor, commitIndex,data.LastApplied)
+	return true,nil
+} 
+
+func (c * consensus) writeLastApplied(lastApplied int64) (bool, error) {
+	ok , err , data := c.readDisk() 
+	if ok == false {
+		return ok , err
+	} 
+	c.writeAll(data.Term, data.VotedFor, data.CommitIndex, lastApplied)
+	return true,nil
+}
+
+func (c *consensus) writeAll(currentTerm int64, votedFor int, commitIndex int64, lastApplied int64) (bool, error) {
+	data := persistentData{Term: currentTerm, VotedFor: votedFor,CommitIndex: commitIndex, LastApplied : lastApplied}
 	msg, err := json.Marshal(data)
 	if err != nil {
 		if LOG >= INFO {
@@ -284,6 +322,8 @@ type consensus struct {
 	dbPath string
 
 	dbInterface *DBInterface
+	
+	kvStore *kvs.KVInterface
 }
 
 // Term return the current term
@@ -452,6 +492,8 @@ func init() {
 	gob.Register(ResponseToken{})
 	gob.Register(LogEntry{})
 	gob.Register(LogItem{})
+	gob.Register(Command{})
+	gob.Register(Result{})
 }
 
 // leader tracker runs the timer in case timeout happen it will send and message on the out channel
@@ -463,8 +505,13 @@ func (c *consensus) leaderTracker(in chan bool, out chan bool) {
 	// Each server will use it's pid as seed to all will have different
 	// sequesnce of random values
 	// TODO : Timeut for first time must be at lower bound
-	randTimeout := c.eTimeout + time.Duration(float64(c.eTimeout.Nanoseconds())*(float64(rand.Intn(10000))/10000))*time.Nanosecond
-	if LOG >= FINE {
+	var randTimeout time.Duration 
+	if timeOutCount > 0 {
+		randTimeout = c.eTimeout + time.Duration(float64(c.eTimeout.Nanoseconds()*int64(math.Pow(2,float64(timeOutCount))))*(float64(rand.Intn(10000))/10000))*time.Nanosecond
+	} else {
+		randTimeout = c.eTimeout
+	}
+	if LOG >= HIGH {
 		c.logger.Printf("Raft %v: Leader Tracker : Timeout duration %v\n", c.pid, randTimeout)
 	}
 LOOP:
@@ -527,14 +574,8 @@ func (c *consensus) follower() int {
 
 	c.updateLastLogIndex()
 	for {
-		if c.commitIndex > c.lastApplied {
-			for i := c.lastApplied + 1; i <= c.commitIndex; i++ {
-				if LOG >= HIGH {
-					c.logger.Printf("Follower State : Apply Log in State Machie, LogIndex %v", i)
-				}
-			}
-			c.lastApplied = c.commitIndex
-		}
+		c.updateLastAppliedIndex()
+		
 		select {
 		case env := <-c.server.Inbox():
 			if LOG >= FINE {
@@ -544,7 +585,7 @@ func (c *consensus) follower() int {
 			switch {
 			case msg.MsgCode == APPEND_ENTRY:
 				if LOG >= FINE {
-					c.logger.Printf("Follower State : Append Received from %v \n", env.Pid)
+					c.logger.Printf("Follower State : Append Received from %+v  \n", env)
 				}
 
 				data, ok := (msg.Msg).(AppendEntriesToken)
@@ -579,6 +620,8 @@ func (c *consensus) follower() int {
 					}
 					if result == false || data.Entries == nil || len(data.Entries) == 0 {
 						c.sendNewResponseToken(env.Pid, result, nextIndexRequest)
+						c.logger.Println("Follower State : Append Entry Without Log : Reply %v",result)
+						continue
 					}
 
 					c.purgeLog(data.PrevLogIndex + 1)
@@ -636,7 +679,9 @@ func (c *consensus) follower() int {
 						continue
 					}
 					if result == false || data.Entries == nil || len(data.Entries) == 0 {
+						c.logger.Println("Follower State : Append Entry Without Log from %v: Reply %v",result, env.Pid)
 						c.sendNewResponseToken(env.Pid, result, nextIndexRequest)
+						continue
 					}
 
 					c.purgeLog(data.PrevLogIndex + 1)
@@ -681,8 +726,8 @@ func (c *consensus) follower() int {
 					// if not voted or voted for candidate Id )
 				} else if c.currentTerm < term {
 					if LOG >= HIGH {
-						c.logger.Println("Follower State : Request from higer term")
-					}
+						c.logger.Println("Follower State : Request from higer term..Updatinf own term")
+					} 
 					if c.verifyLastLogTermIndex(data.LastLogTerm, data.LastLogIndex) {
 						in_leaderTracker <- true
 						c.markVote(term, int(data.CandidateId))
@@ -692,6 +737,9 @@ func (c *consensus) follower() int {
 						}
 						c.sendNewVoteResponseToken(env.Pid, true)
 					} else {
+						c.currentTerm = term
+						c.markVote(c.currentTerm,-1)
+						c.lStatus.status = false
 						if LOG >= HIGH {
 							c.logger.Println("Follower State : LastLog Varification: Failed : Rejecting request")
 						}
@@ -739,6 +787,9 @@ func (c *consensus) follower() int {
 		case <-out_leaderTracker:
 			return CANDIDATE
 		case <-c.outRaft:
+			if LOG >= HIGH {
+				c.logger.Printf("Follower State : Message came at outRaft\n")
+			}
 			lItem := LogItem{Index: -1, Data: c.lStatus.pidOfLeader}
 			c.inRaft <- &lItem
 		case <-c.shutdownChan:
@@ -754,7 +805,7 @@ func (c *consensus) follower() int {
 func (c *consensus) markVote(term int64, candidateId int) {
 	c.currentTerm = term
 	c.lStatus.votedFor = candidateId
-	c.writeAll(c.currentTerm, c.lStatus.votedFor)
+	c.writeAll(c.currentTerm, c.lStatus.votedFor,c.commitIndex,c.lastApplied)
 }
 
 func (c *consensus) sendVoteRequestToken(pid int) {
@@ -952,7 +1003,10 @@ func (c *consensus) sendAppendEntry(heartBeat bool) {
 			if prevLogIndex == 0 {
 				prevLogTerm = int64(0)
 			} else {
-				prevLogTerm, err := c.dbInterface.GetTerm(prevLogIndex)
+				prevLogTerm, err = c.dbInterface.GetTerm(prevLogIndex)
+				if LOG >= FINE {
+					c.logger.Printf("PrevLogTerm should be %v\n",prevLogTerm)
+				}
 				if err != nil || prevLogTerm == -1 {
 					if LOG >= INFO {
 						c.logger.Printf("Error : Cound not send log entry")
@@ -966,7 +1020,7 @@ func (c *consensus) sendAppendEntry(heartBeat bool) {
 			aEntry := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid, PrevLogIndex: prevLogIndex, PrevLogTerm: prevLogTerm, Entries: entries, LeaderCommit: c.commitIndex}
 			msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: aEntry}
 			env := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: msg}
-			if LOG > INFO {
+			if LOG >= INFO {
 				c.logger.Printf("Sending HB %+v \n", env)
 			}
 			c.sendMessage(env)
@@ -989,7 +1043,7 @@ func (c *consensus) sendAppendEntry(heartBeat bool) {
 			aEntry := AppendEntriesToken{Term: c.currentTerm, LeaderId: c.pid, PrevLogIndex: prevLogIndex, PrevLogTerm: prevLogTerm, LeaderCommit: c.commitIndex}
 			msg := cluster.Message{MsgCode: APPEND_ENTRY, Msg: aEntry}
 			env := &cluster.Envelope{Pid: pid, MsgType: cluster.CTRL, Msg: msg}
-			if LOG > INFO {
+			if LOG >= INFO {
 				c.logger.Printf("Sending HB %+v \n", env)
 			}
 			c.sendMessage(env)
@@ -1002,7 +1056,7 @@ func (c *consensus) updateCommitIndex() {
 	// search for largest Index which can be commited
 	majority := len(c.nextIndex) / 2
 
-	if LOG >= FINE {
+	if LOG >= HIGH {
 		c.logger.Printf("Updating CommitIndex\n")
 		c.logger.Printf("NextIndex : %v\n", c.nextIndex)
 		c.logger.Printf("MatchIndex : %v\n", c.matchIndex)
@@ -1038,19 +1092,81 @@ func (c *consensus) updateCommitIndex() {
 			c.logger.Printf(" Error : Invalid Term\n")
 		} else if term == c.currentTerm {
 			c.commitIndex = nextCommitIndex
+			c.writeCommitIndex(c.commitIndex)
 		}
 	}
 }
 
+// This method execute the command on the KVstore and the 
+// then return the result
+func (c *consensus) executeCommand(cmd interface{} ) (*Result , error){
+	inCmd, ok := cmd.(Command)
+	if ok == false {
+		if LOG >= INFO {
+			c.logger.Printf("Raft %v : Command format not supported\n")
+		}
+		err := fmt.Errorf("Command Format not supported")
+		return nil, err
+	} 
+	
+	var newCmd kvs.Command
+	
+	newCmd.Cmd = inCmd.Cmd
+	newCmd.Key = inCmd.Key
+	newCmd.Value = inCmd.Value
+	
+	value, err := c.kvStore.ExecuteCommand(&newCmd)
+	
+	result :=  Result {Error : err, Value : value}
+	
+	return &result, err
+}
+
 func (c *consensus) updateLastAppliedIndex() {
+	if LOG >= HIGH {
+			c.logger.Printf("UpdatingLastApplied : Apply Log in State Machie,LastLogIndex : %v, CommitIndex : %v , LastAppliedIndex %v", c.lastLogIndex, c.commitIndex, c.lastApplied)
+	}
 	if c.commitIndex > c.lastApplied {
 		for i := c.lastApplied + 1; i <= c.commitIndex; i++ {
 			if LOG >= HIGH {
-				c.logger.Printf("Follower State : Apply Log in State Machie, LogIndex %v", i)
+				c.logger.Printf("UpdatingLastApplied: Apply Log in State Machie, LogIndex %v", i)
 			}
-			c.inRaft <- &LogItem{Index: i, Data: "Ok"}
+			lEntry, err := c.dbInterface.Get(i)
+			if err != nil  || lEntry == nil{
+				if lEntry == nil {
+					c.PrintLog()
+				}
+				c.logger.Printf("Raft %v: Cound not fetach command to apply")
+				c.lastApplied = i-1
+				_ , err = c.writeLastApplied(c.lastApplied)
+				if err != nil {
+					c.logger.Printf("Raft %v: Error in writing last applied index")
+				}
+				return
+			}
+			
+			cmd := lEntry.Command 
+			result , err := c.executeCommand(cmd)
+			if err != nil {
+				c.logger.Printf("Raft %v: Command Execution failed")
+				c.lastApplied = i-1
+				_ , err = c.writeLastApplied(c.lastApplied)
+				if err != nil {
+					c.logger.Printf("Raft %v: Error in writing last applied index")
+				}
+				return
+			}
+			cmdReply := LogItem{Index: i, Data: *result} 
+			c.inRaft <- &cmdReply
+			if LOG >= HIGH {
+				c.logger.Printf("UpdatingLastApplied: Replied to client %+v", cmdReply)
+			}
 		}
 		c.lastApplied = c.commitIndex
+		_, err := c.writeLastApplied(c.lastApplied)
+		if err != nil {
+					c.logger.Printf("Raft %v: Error in writing last applied index")
+		}
 	}
 }
 
@@ -1260,7 +1376,19 @@ func (c *consensus) leader() int {
 			continue
 		case cmd := <-c.outRaft:
 			if LOG >= HIGH {
-				c.logger.Printf("Leader State : Got commod for replication\n")
+				c.logger.Printf("Leader State : Got commod for replication %+v\n",cmd)
+			}
+			ok , err := c.validateCommand(cmd) 
+			if ok == false {
+				if LOG >= INFO {
+					c.logger.Printf("Command Validation failed\n")
+				}
+				cmdReply := LogItem{Index: -2, Data: err} 
+				c.inRaft <- &cmdReply
+				continue
+			} 
+			if LOG >= INFO {
+					c.logger.Printf("Command Validation sucessful\n")
 			}
 			c.WriteToLocalLog(cmd)
 			// as new request has been arrieved send a new entry
@@ -1305,7 +1433,7 @@ func (c *consensus) sendNewResponseToken(pid int, flag bool, nextIndex int64) {
 }
 
 // initialize the raft instance
-func (c *consensus) initialize(pid int, path string, server *cluster.Server, isRestart bool) (bool, error) {
+func (c *consensus) initialize(pid int, path string, server *cluster.Server, kvStorePath string,isRestart bool) (bool, error) {
 
 	ok, err := c.parse(pid, path)
 	if ok == false {
@@ -1352,6 +1480,8 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 		if ok == true {
 			c.currentTerm = data.Term
 			c.lStatus.votedFor = data.VotedFor
+			c.commitIndex = data.CommitIndex
+			c.lastApplied = data.LastApplied
 		} else if err != nil {
 			if LOG >= INFO {
 				c.logger.Printf("Raft %v :Error : While Reading the Metadata file\n", c.pid)
@@ -1363,14 +1493,16 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 			if isRestart == false {
 				c.logger.Printf("Raft %v :Starting\n", c.pid)
 			} else {
-				c.logger.Printf("Raft %v :Meta file does not exist\n", c.pid)
+				c.logger.Printf("Raft %v :  Restart Requested ...But Meta file does not exist\n", c.pid)
 			}
 		}
-
+		
 		// destroying previous log database
-		err = DestroyDatabase(c.dbPath)
-		if err != nil {
-			return false, err
+		if isRestart == false {
+			err = DestroyDatabase(c.dbPath)
+			if err != nil {
+				return false, err
+			}
 		}
 
 		file, err := os.Create(c.filePath)
@@ -1383,7 +1515,9 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 		}
 		c.currentTerm = 0
 		c.lStatus.votedFor = -1
-		ok, err = c.writeAll(c.currentTerm, c.lStatus.votedFor)
+		c.commitIndex = 0
+		c.lastApplied = 0
+		ok, err = c.writeAll(c.currentTerm, c.lStatus.votedFor,c.commitIndex,c.lastApplied)
 		if ok == false {
 			if LOG >= INFO {
 				c.logger.Printf("Raft %v :Error : Error in writing to metadata file %v \n", c.pid, err)
@@ -1397,8 +1531,8 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	// added for supporting second phase
 	c.outRaft = make(chan interface{}, 100)
 	c.inRaft = make(chan *LogItem, 100)
-	c.commitIndex = 0
-	c.lastApplied = 0
+	//c.commitIndex = 0
+	//c.lastApplied = 0
 
 	c.dbInterface = GetDBInterface(c.pid, c.logger)
 
@@ -1406,10 +1540,20 @@ func (c *consensus) initialize(pid int, path string, server *cluster.Server, isR
 	if err != nil {
 		if LOG >= INFO {
 			c.logger.Printf("Database connection failed %v \n", err)
-			return false, err
 		}
+		return false, err
 	}
-
+	
+	
+	// open connection to KV store 
+	c.kvStore, err = kvs.GetKVInterface(kvStorePath) 
+	if err != nil {
+		if LOG >= INFO {
+			c.logger.Printf("Cound not connect rot KV store")
+		}
+		return false, err
+	}
+	
 	// this would be initialized by leader after each leader election
 	c.nextIndex = make(map[int]int64, 0)
 	c.matchIndex = make(map[int]int64, 0)
@@ -1435,13 +1579,24 @@ func (c *consensus) startRaft() {
 	}
 	// Instance will start in follower state
 	state = FOLLOWER // Confirm the case of restart
+	timeOutCount = 0
 LOOP:
 	for {
 		switch {
 		case state == FOLLOWER:
 			state = c.follower()
+			if state == FOLLOWER {
+				timeOutCount++
+			} else {
+				timeOutCount = 0
+			}
 		case state == CANDIDATE:
 			state = c.candidate()
+			if state == CANDIDATE {
+				timeOutCount++
+			} else {
+				timeOutCount = 0
+			}
 		case state == LEADER:
 			state = c.leader()
 		case state == STOP:
@@ -1456,19 +1611,24 @@ LOOP:
 	}
 	c.shutdownChan <- true
 	c.dbInterface.CloseDB()
+	c.kvStore.CloseKV()
 }
 
 // New method takes the
 //	myid : of the local server
-//  path : path of the configuration files
-//  server : serverInstance (set server logger before sending)
+// 	path : path of the configuration files
+// 	server : serverInstance (set server logger before sending)
+// kvStorePath : path of the key value store on the local machine
 // isRestart : specify whether it is a restart or fresh start of raft isntance
+// The Raft assume that the KVstore exist. In case of the kv store does not exist it
+// will throw an error  
 
-func NewRaft(myid int, path string, logLevel int, server *cluster.Server, isRestart bool) (*consensus, bool, error) {
+
+func NewRaft(myid int, path string, logLevel int, server *cluster.Server, kvStorePath string,  isRestart bool) (*consensus, bool, error) {
 	var c consensus
 	c.pid = myid
 	LOG = logLevel
-	_, err := c.initialize(myid, path, server, isRestart)
+	_, err := c.initialize(myid, path, server, kvStorePath,  isRestart)
 	if err != nil {
 		return nil, false, err
 	}

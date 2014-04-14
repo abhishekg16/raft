@@ -29,6 +29,18 @@ func DestroyDatabase(path string) error {
 	return err
 }
 
+
+func (conn *DbConnection) OpenOldConnection(path string) error {
+	opts := levigo.NewOptions()
+	opts.SetCache(levigo.NewLRUCache(3 << 10))
+	opts.SetCreateIfMissing(false)
+	var err error
+	conn.db, err = levigo.Open(path, opts)
+	conn.ro = levigo.NewReadOptions()
+	conn.wo = levigo.NewWriteOptions()
+	return err
+}
+
 func (conn *DbConnection) OpenConnection(path string) error {
 	opts := levigo.NewOptions()
 	opts.SetCache(levigo.NewLRUCache(3 << 10))
