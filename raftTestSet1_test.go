@@ -117,6 +117,30 @@ func shutdownRaft(num int, r []*consensus) {
 	}
 }
 
+func findLeader( rObj []*consensus) int{
+	term := int64(0)
+	leader := -1
+	for {
+		for i := 0 ; i < NOFRAFT ; i++ {
+			if (rObj[i] == nil) {
+				continue
+			}
+			if rObj[i].IsLeader() == true {
+				if rObj[i].Term() > term {
+					leader = i
+				}  
+			}
+		} 
+		if leader != -1 {
+			return leader
+		} 
+		if TEST_LOG_LEVEL >= HIGH  {
+			log.Printf("Leader Node elected... Waiting...")
+		}
+		time.Sleep( 3 * time.Second )
+	}
+}
+
 
 
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
@@ -284,6 +308,7 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 // 1. Stop the leader case (delayed leader)
 // 2. All the server must have same log
 
+
 func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
 	time.Sleep(5*time.Second)
@@ -376,28 +401,13 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 	}
 }
 
-func findLeader( rObj []*consensus) int{
-	for {
-		for i := 0 ; i < NOFRAFT ; i++ {
-			if (rObj[i] == nil) {
-				continue
-			}
-			if rObj[i].IsLeader() == true {
-				return i 
-			}
-		}
-		if TEST_LOG_LEVEL >= HIGH  {
-			log.Printf("Leader Node elected... Waiting...")
-		}
-		time.Sleep( 3 * time.Second )
-	}
-}
 
 
-/*
-	This method send few command and then restartLeader, mean while system proceed with new command on the new leader.
-	Expected behavious : the restarted machine should get in sync with other machine and eventaully must have same log
-*/
+
+
+//	This method send few command and then restartLeader, mean while system proceed with new command on the new leader.
+//	Expected behavious : the restarted machine should get in sync with other machine and eventaully must have same log
+
 
 
 func TestRaft_RestartLeader(t *testing.T) {
@@ -511,10 +521,11 @@ func TestRaft_RestartLeader(t *testing.T) {
 }
 
 
-/*
-	This method check the idempotent prperty. 
-	Test Case : Client send same message multiple time. But system must execute that only once
-*/
+
+//	This method check the idempotent prperty. 
+//	Test Case : Client send same message multiple time. But system must execute that only once
+
+
 func TestRaft_Idempotent(t *testing.T) {
 
 	time.Sleep(5*time.Second)
@@ -573,6 +584,132 @@ func TestRaft_Idempotent(t *testing.T) {
 		t.Errorf("Same Command Applieded multiple times")
 	} 
 }
+
+
+func TestRaft_IntroducePartition(t *testing.T) {
+
+	time.Sleep(5*time.Second)
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		t.Errorf("Cound not instantiate server instances")
+	}
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		t.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	// inserted delay to allow system to stabalize
+	time.Sleep(8 * time.Second)
+	
+	leader := 0
+	j := 0
+	
+	leader = findLeader(rObj)
+	
+	
+	if TEST_LOG_LEVEL >= HIGH  {
+		log.Printf("Leader is %v ",leader)
+	}	
+		
+
+	for i := 0; i < 3; i++ {
+		if TEST_LOG_LEVEL >= HIGH  {			
+			log.Printf("Sending to Leader : %v",leader)
+		}
+		key := "key" +  strconv.Itoa(j)
+		value := "value" + strconv.Itoa(j)
+		j++
+		cmd1 := Command{Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+		rObj[leader].Outbox() <- &cmd1
+		reply := <-rObj[leader].Inbox()
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Got Reply %+v", reply)
+		}
+	}
+
+	partitionMap := make(map[int]int,NOFSERVER)
+	
+	for i := 0 ;  i < NOFRAFT ; i++ {
+		if i == leader  {
+			partitionMap[i] = 0		
+		} else  {
+			partitionMap[i] = 1
+		}
+	} 
+	
+	for i := 0 ; i < NOFSERVER ; i++ {
+		sObjs[i].Partition(partitionMap)
+	}
+	
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf("Introduced Partitioning...")
+	}
+	
+	time.Sleep(30*time.Second)
+	
+	leader = findLeader(rObj)
+	
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf("New Leader is %v", leader)
+	}
+	
+	for i := 0; i < 2; i++ {
+		if TEST_LOG_LEVEL >= HIGH  {  			
+			log.Printf("Sending to Leader : %v",leader)
+		}
+		key := "key" +  strconv.Itoa(j)
+		value := "value" + strconv.Itoa(j)
+		j++
+		cmd1 := Command{Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+		rObj[leader].Outbox() <- &cmd1
+		reply := <-rObj[leader].Inbox()
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Got Reply %v", reply)
+		}
+	}
+	
+	time.Sleep(10*time.Second)
+	
+	// remove partition
+	for i := 0 ; i < NOFSERVER ; i++ {
+		sObjs[i].RemovePartitions()
+	}
+	if TEST_LOG_LEVEL >= HIGH {
+		log.Printf("Removed Partitioning...")
+	}
+	
+		
+	// wait for system to sync 
+	time.Sleep(10 * time.Second)
+
+	// verify the logs
+	indexes := make([]int64, 0)
+	terms := make([]int64, 0)
+	for i := 0; i < NOFRAFT; i++ {
+		index, term := rObj[i].LastLogIndexAndTerm()
+		indexes = append(indexes, index)
+		terms = append(terms, term)
+		//log.Printf("Raft %v: Index : %v , Term : %v ",i,index,term)
+		if TEST_LOG_LEVEL >= HIGH{
+			rObj[i].PrintLog()
+		}
+	}
+
+	shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+
+	for i := 0; i < len(indexes)-1; i++ {
+		if indexes[i] != indexes[i+1] || terms[i] != terms[i+1] {
+			t.Errorf("The Log is not same on all the servers")
+		}
+
+	}
+}
+
+
+
 
 
 
