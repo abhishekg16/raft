@@ -1,5 +1,5 @@
 { "property":"myid", "Value": 0 ,"Description": " Peer Id of the local server, must be enough greater then the broadcast time"}
-{ "property":"Etimeout","Value": 4000 , "Description" : "Election Time out" }
-{ "property":"hfre","Value": 1000 , "Description" : "Interval between two heart beats"}
+{ "property":"Etimeout","Value": 600 , "Description" : "Election Time out in milli seconds" }
+{ "property":"hfre","Value": 250 , "Description" : "Interval between two heart beats in milli seconds"}
 { "property":"dataDir","Value": "./data" , "Description" : "Directory to store all data related to the raft"}
 { "property":"logDir","Value": "./logs" , "Description" : "Directory to store all data related to the raft"}

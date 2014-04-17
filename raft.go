@@ -401,6 +401,7 @@ func (c *consensus) LastLogIndexAndTerm() (int64, int64) {
 	return c.dbInterface.GetLastLogIndex(), c.dbInterface.GetLastLogTerm()
 }
 
+/*
 // this method check the server inbox channel and return the input Envelope to the coller
 func (c *consensus) inbox() *cluster.Envelope {
 	c.mutexInbox.Lock()
@@ -415,7 +416,7 @@ func (c *consensus) inbox() *cluster.Envelope {
 	}
 	return env
 }
-
+*/
 // parse function takes it's own id and the path to the directory containg all the configuration files
 func (c *consensus) parse(ownId int, path string) (bool, error) {
 	if LOG >= FINE {
@@ -979,8 +980,21 @@ func (c *consensus) candidate() int {
 	}
 }
 
-func (c *consensus) sendAppendEntry(heartBeat bool) {
-	for pid, nIndex := range c.nextIndex {
+/*
+	SendAppendEntry take peer Id and a boolean flag. It sends the append entry to the peer.
+	In case flag is true it will defenitely send the AP either with log entries or without log entries
+	In case flag is false it will only send the HB in case the log entries need to be replicated 
+*/
+func (c *consensus) sendAppendEntry(peerId int,heartBeat bool) {
+		pid := peerId
+		nIndex, ok  := c.nextIndex[pid]
+		if ok == false {
+			if LOG > INFO {
+					c.logger.Printf("Error : No next Index present for %v",pid)
+			}
+			return
+		}
+		
 		if c.lastLogIndex >= nIndex {
 			// send the Append Entry
 			lEntry, err := c.dbInterface.Get(nIndex)
@@ -1048,7 +1062,6 @@ func (c *consensus) sendAppendEntry(heartBeat bool) {
 			}
 			c.sendMessage(env)
 		}
-	}
 }
 
 func (c *consensus) updateCommitIndex() {
@@ -1206,28 +1219,43 @@ func (c *consensus) leader() int {
 		c.logger.Printf("Leader State : matchIndex %v \n", c.matchIndex)
 	}
 
-	// sendIntialHB
-	c.sendAppendEntry(true)
-	lastHeartBeatTimeStamp := time.Now()
+	// sendIntialHB to all peers
+	
+	peers := c.server.Peers()
+	// map contains the mapping {peerId} -> time at which last append Entry was send
+	lastHeartBeatTimeStamp := make(map[int]time.Time,len(peers))
+	//for peerId := range peers {
+	for i:= 0 ; i < len(peers) ; i++ {
+		peerId := peers[i]
+		c.sendAppendEntry(peerId,true)
+		lastHeartBeatTimeStamp[peerId] = time.Now()
+	}
+	
 
+	
+  
 	for {
 		//updateCommit Index and lastApplied Index
 		c.updateCommitIndex()
 		c.updateLastAppliedIndex()
 
 		// sendHB if necessary
-		t := lastHeartBeatTimeStamp
-		prevTimeStamp := t.Add(c.heartBeatInterval)
-		if LOG >= FINE {
-			//c.logger.Printf("Leader State : last HB TimeS : %v , prevTimeS : %v , NOW : %v \n", t, prevTimeStamp, time.Now())
-		}
-		if prevTimeStamp.Before(time.Now()) {
-			// need to send a HB
+		for i:= 0 ; i < len(peers) ; i++ {
+			peerId := peers[i]
+			t := lastHeartBeatTimeStamp[peerId]
+			prevTimeStamp := t.Add(c.heartBeatInterval)
 			if LOG >= FINE {
-				c.logger.Printf("Leader State : Sending HB\n")
+				//c.logger.Printf("Leader State : last HB TimeS : %v , prevTimeS : %v , NOW : %v \n", t, prevTimeStamp, time.Now())
 			}
-			lastHeartBeatTimeStamp = time.Now()
-			c.sendAppendEntry(true)
+			if prevTimeStamp.Before(time.Now()) {
+				// need to send a HB
+				if LOG >= FINE {
+					c.logger.Printf("Leader State : Sending HB to ..%v\n",peerId)
+					//c.logger.Printf("Leader State : Pers.%v\n",peers)
+				}
+				lastHeartBeatTimeStamp[peerId] = time.Now()
+				c.sendAppendEntry(peerId,true)
+			}
 		}
 		select {
 		case env := <-c.server.Inbox():
@@ -1289,23 +1317,31 @@ func (c *consensus) leader() int {
 					// HB Respose success : LogResponse : Applied
 					replier := env.Pid
 					c.nextIndex[replier] = data.NextIndex
+					/*
 					if ok == false {
 						if LOG >= INFO {
 							c.logger.Printf("Leader State : Cound not find the log Entry for the %v", replier)
 						}
 						continue
 					}
+					*/
 					c.matchIndex[replier] = data.NextIndex - 1
 					if LOG >= HIGH {
-						c.logger.Printf("Leader State : Raft : %v Accepted Log : nextIndex : %v", env.Pid, data.NextIndex)
-					}
+						c.logger.Printf("Leader State : Raft : %v Accepted Log : nextIndex : %v.. Sending Next Entry", env.Pid, data.NextIndex)
+					} 
+					peerId := env.Pid
+					lastHeartBeatTimeStamp[peerId] = time.Now()
+					c.sendAppendEntry(peerId,false)
 				} else if data.Success == false {
 					// HB Respose : Failed : LogRepose : decresse it
 					replier := env.Pid
 					c.nextIndex[replier] = data.NextIndex
 					if LOG >= HIGH {
-						c.logger.Printf("Leader State : Raft : %v replied the inconsistent Log for HB : nextIndex : %v", env.Pid, data.NextIndex)
+						c.logger.Printf("Leader State : Raft : %v replied the inconsistent Log for HB : nextIndex ...Sending Next Entry: %v", env.Pid, data.NextIndex)
 					}
+					peerId := env.Pid
+					lastHeartBeatTimeStamp[peerId] = time.Now()
+					c.sendAppendEntry(peerId,false)
 				}
 			case msg.MsgCode == VOTEREQUEST:
 				data := (msg.Msg).(VoteRequestToken)
@@ -1392,7 +1428,7 @@ func (c *consensus) leader() int {
 			}
 			c.WriteToLocalLog(cmd)
 			// as new request has been arrieved send a new entry
-			c.sendAppendEntry(false)
+			//c.sendAppendEntry(false)
 		}
 	}
 }

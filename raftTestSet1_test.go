@@ -137,7 +137,7 @@ func findLeader( rObj []*consensus) int{
 		if TEST_LOG_LEVEL >= HIGH  {
 			log.Printf("Leader Node elected... Waiting...")
 		}
-		time.Sleep( 3 * time.Second )
+		time.Sleep( 2 * time.Second )
 	}
 }
 
@@ -155,7 +155,7 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 		t.Errorf("Cound not instantiate Raft Instance instances")
 	}
 
-	time.Sleep(5 * time.Second)
+	time.Sleep(3 * time.Second)
 	ok, _ = checkLeaderShip(rObj)
 
 	shutdownServer(NOFSERVER, sObjs)
@@ -178,7 +178,7 @@ func TestRaft_PutAndGetTest(t *testing.T) {
 		log.Println(err)
 		t.Errorf("Cound not instantiate Raft Instance instances")
 	}
-	time.Sleep(10* time.Second)
+	time.Sleep(3* time.Second)
 	
 	cmd1 := Command{Cmd : Put , Key : []byte("Key1")  , Value: []byte("value1")}
 
@@ -192,7 +192,7 @@ func TestRaft_PutAndGetTest(t *testing.T) {
 		select {
 			case reply = <-rObj[leader].Inbox():
 				//
-			case <-time.After(3 * time.Second):
+			case <-time.After(2 * time.Second):
 		//		log.Printf("Resending to  : %v",leader)
 				continue
 		}
@@ -213,7 +213,7 @@ func TestRaft_PutAndGetTest(t *testing.T) {
 		select {
 			case reply = <-rObj[leader].Inbox():
 				//
-			case <-time.After(3 * time.Second):
+			case <-time.After(2 * time.Second):
 		//		log.Printf("Resending to  : %v",leader)
 				continue
 		}
@@ -311,7 +311,7 @@ func TestRaft_SingleCommandTest(t *testing.T) {
 
 func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
-	time.Sleep(5*time.Second)
+	time.Sleep(2*time.Second)
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -323,7 +323,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 		t.Errorf("Cound not instantiate Raft Instance instances")
 	}
 
-	time.Sleep(8 * time.Second)
+	time.Sleep(2 * time.Second)
 	// send a commond on outbox of every one
 	// only leader will accept and
 
@@ -358,7 +358,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 					if TEST_LOG_LEVEL >= HIGH { 
 						log.Printf("Reply : %v",reply)
 					}
-				case <-time.After(3 * time.Second):
+				case <-time.After(2 * time.Second):
 					{
 						if TEST_LOG_LEVEL >= HIGH { 
 							log.Printf("Resending to  : %v",leader)
@@ -370,7 +370,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 				newleader := reply.Data.(int)
 				if (newleader == leader) {
 					// no leader at present
-					time.Sleep(10*time.	Second)
+					time.Sleep(3*time.	Second)
 				}	
 				leader = newleader
 			} else {
@@ -378,7 +378,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 			}
 		}
 	}
-	time.Sleep(10 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	indexes := make([]int64, 0)
 	terms := make([]int64, 0)
@@ -412,7 +412,7 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 
 func TestRaft_RestartLeader(t *testing.T) {
 
-	time.Sleep(5*time.Second)
+	time.Sleep(1*time.Second)
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -425,7 +425,7 @@ func TestRaft_RestartLeader(t *testing.T) {
 	}
 
 	// inserted delay to allow system to stabalize
-	time.Sleep(8 * time.Second)
+	time.Sleep(2 * time.Second)
 	
 	leader := 0
 	j := 0
@@ -494,7 +494,7 @@ func TestRaft_RestartLeader(t *testing.T) {
 	}
 	
 	// wait for system to sync 
-	time.Sleep(10 * time.Second)
+	time.Sleep(3 * time.Second)
 
 	// verify the logs
 	indexes := make([]int64, 0)
@@ -528,7 +528,7 @@ func TestRaft_RestartLeader(t *testing.T) {
 
 func TestRaft_Idempotent(t *testing.T) {
 
-	time.Sleep(5*time.Second)
+	time.Sleep(1*time.Second)
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -541,7 +541,7 @@ func TestRaft_Idempotent(t *testing.T) {
 	}
 
 	// inserted delay to allow system to stabalize
-	time.Sleep(8 * time.Second)
+	time.Sleep(2 * time.Second)
 	
 	leader := 0
 	j := 0
@@ -588,7 +588,7 @@ func TestRaft_Idempotent(t *testing.T) {
 
 func TestRaft_IntroducePartition(t *testing.T) {
 
-	time.Sleep(5*time.Second)
+	time.Sleep(1*time.Second)
 	sObjs, err := makeDummyServer(NOFSERVER)
 	if err != nil {
 		log.Println(err)
@@ -601,7 +601,7 @@ func TestRaft_IntroducePartition(t *testing.T) {
 	}
 
 	// inserted delay to allow system to stabalize
-	time.Sleep(8 * time.Second)
+	time.Sleep(2 * time.Second)
 	
 	leader := 0
 	j := 0
@@ -647,7 +647,7 @@ func TestRaft_IntroducePartition(t *testing.T) {
 		log.Printf("Introduced Partitioning...")
 	}
 	
-	time.Sleep(30*time.Second)
+	time.Sleep(10*time.Second)
 	
 	leader = findLeader(rObj)
 	
@@ -670,7 +670,7 @@ func TestRaft_IntroducePartition(t *testing.T) {
 		}
 	}
 	
-	time.Sleep(10*time.Second)
+	time.Sleep(3*time.Second)
 	
 	// remove partition
 	for i := 0 ; i < NOFSERVER ; i++ {
@@ -682,7 +682,7 @@ func TestRaft_IntroducePartition(t *testing.T) {
 	
 		
 	// wait for system to sync 
-	time.Sleep(10 * time.Second)
+	time.Sleep(4 * time.Second)
 
 	// verify the logs
 	indexes := make([]int64, 0)
