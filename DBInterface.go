@@ -1,5 +1,10 @@
 package raft
 
+// DB interface is used for logging purpose. This Interface provide functions by
+// using which raft instance stores the log on parsistent system.
+// The LevelDB assume all the key-value as the byte arrays. This method performs all 
+// endocing and decoding which reduces the complexity in raft instance. 
+
 import (
 	"bytes"
 	"encoding/gob"
@@ -9,7 +14,6 @@ import (
 	"os"
 )
 
-// TODO : Increase the encoding facility
 type DBEncoder struct {
 }
 
@@ -20,6 +24,7 @@ type DBInterface struct {
 	logger *log.Logger
 }
 
+// GetDBInterface 
 func GetDBInterface(id int, logger *log.Logger) *DBInterface {
 	t_conn := db.InitializeNewConnection()
 	var di DBInterface

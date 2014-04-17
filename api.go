@@ -2,6 +2,7 @@ package raft
 
 import "time"
 
+// Interface provide by the raft instance
 type Raft interface {
 	Term() int                  // return the current term
 	IsLeader() bool             // return whether the current raft instance is Leader
@@ -32,24 +33,26 @@ type LogEntry struct {
 }
 
 
+// Type of commad Supported
 const (
 	Get = iota
 	Put = iota
 	Del = iota
 )
 
-// error code
+// error code 
 const (
 	CMD_INPROGRESS = iota
 	CMD_APPLIED = iota
 	CMD_OUT_OF_ORDER = iota
 )
 
+// Command object used by the client to send the request to raft
 type Command struct{
-	CmdId int64
-	Cmd int
-	Key []byte
-	Value [] byte
+	CmdId int64      // unique command Id send by client
+	Cmd int			 // Command Type {Get, Put, Del}
+	Key []byte		 // Key in byte array 	
+	Value [] byte	 // Value in byte array	
 }
 
 // Result replied  by the KVInterface

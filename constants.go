@@ -1,5 +1,6 @@
 package raft
 
+// This file contains all the constant used in the raft implementations
 const (
 	INFO    = iota
 	HIGH    = iota

@@ -35,7 +35,6 @@ var timeOutCount int
 
 // This method will remove all the entries which are greater then the
 // lastIndex (inclusive)
-
 func (c *consensus) purgeLog(s int64) {
 	for i := s; i <= c.lastLogIndex; i++ {
 		if LOG >= FINE {
@@ -49,6 +48,8 @@ func (c *consensus) purgeLog(s int64) {
 	c.updateLastLogIndex()
 }
 
+// This command verify whether command should be applied or not. 
+// This method avoid to apply the same command again and again
 func (c *consensus)validateCommand(command interface{}) (bool,error) {
 	cmd , ok := command.(*Command)
 	
@@ -75,6 +76,8 @@ func (c *consensus)validateCommand(command interface{}) (bool,error) {
 	return true, nil
 }
 
+
+// WriteToLocalLog write the Command to the local log
 func (c *consensus) WriteToLocalLog(cmd interface{}) {
 	c.lastLogIndex++
 	c.lastLogTerm = c.currentTerm
@@ -91,6 +94,7 @@ func (c *consensus) WriteToLocalLog(cmd interface{}) {
 	}
 }
 
+// verifyLastLogTermIndex verify weather the lastlogIndex and term in request and current server are same or not  
 func (c *consensus) verifyLastLogTermIndex(candidateLastLogTerm int64, candidateLastLogIndex int64) bool {
 	if (c.lastLogTerm > candidateLastLogTerm) || (c.lastLogTerm == candidateLastLogTerm && c.lastLogIndex > candidateLastLogIndex) {
 		return false
@@ -125,7 +129,6 @@ func (c *consensus) verifyPrevLogTermIndex(otherPrevLogTerm int64, otherPrevLogI
 
 // This Token would be used for AppendEntries/HeartBeat Token
 // Even though the Message Code would be able to identify the Actual Purpose of the Token
-
 type AppendEntriesToken struct {
 	Term         int64
 	LeaderId     int
@@ -214,6 +217,7 @@ func (c consensus) writeVotedFor(votedFor int) (bool, error) {
 	return true, nil
 }
 
+// writeCommitIndex write the commit index to the
 func (c *consensus) writeCommitIndex(commitIndex int64) (bool, error) {
 	ok , err , data := c.readDisk() 
 	if ok == false {
@@ -223,6 +227,7 @@ func (c *consensus) writeCommitIndex(commitIndex int64) (bool, error) {
 	return true,nil
 } 
 
+// writeLastApplied write lastAppliedIndex to the disk
 func (c * consensus) writeLastApplied(lastApplied int64) (bool, error) {
 	ok , err , data := c.readDisk() 
 	if ok == false {
@@ -232,6 +237,7 @@ func (c * consensus) writeLastApplied(lastApplied int64) (bool, error) {
 	return true,nil
 }
 
+// writeAll write all the values to the disk 
 func (c *consensus) writeAll(currentTerm int64, votedFor int, commitIndex int64, lastApplied int64) (bool, error) {
 	data := persistentData{Term: currentTerm, VotedFor: votedFor,CommitIndex: commitIndex, LastApplied : lastApplied}
 	msg, err := json.Marshal(data)
@@ -265,25 +271,25 @@ func (c *consensus) writeAll(currentTerm int64, votedFor int, commitIndex int64,
 
 // Consensun struct have all the fields related to raft instance
 type consensus struct {
-	pid int
+	pid int // peerId of this instance
 
-	currentTerm int64
+	currentTerm int64 
 
 	state int // Leader, Follower or candidate
 
-	votes int
+	votes int // not in use
 
-	eTimeout time.Duration
+	eTimeout time.Duration // election time out
 
-	heartBeatInterval time.Duration
+	heartBeatInterval time.Duration // duration between two heart beat
 
-	lStatus leaderStatus
+	lStatus leaderStatus // reference to lStatus objec
 
-	server cluster.Server
+	server cluster.Server // referece to the current cluster instance
 
 	filePath string // RecordFile which store the persistent data
 
-	dataDir string
+	dataDir string  // path to dir where all data files are stored
 
 	logDir string // path of the log files
 
@@ -296,7 +302,7 @@ type consensus struct {
 	outRaft chan interface{} // out channel used by client in order to put the message which need to
 	// to be replicated, if the present instance in not leader rhe message would be
 	// would be droped
-	inRaft chan *LogItem //
+	inRaft chan *LogItem // reply to the client
 
 	commitIndex int64 // index of highest log entry know to be commited
 
@@ -313,7 +319,7 @@ type consensus struct {
 
 	shutdownChan chan bool
 
-	delayChan chan time.Duration
+	delayChan chan time.Duration  
 
 	prevLogIndex int64
 
@@ -321,9 +327,9 @@ type consensus struct {
 
 	dbPath string
 
-	dbInterface *DBInterface
+	dbInterface *DBInterface   // interface to store log message in database
 	
-	kvStore *kvs.KVInterface
+	kvStore *kvs.KVInterface  // interface to apply command to state machine (apply command to KeyValue store)
 }
 
 // Term return the current term
@@ -344,6 +350,8 @@ func (c *consensus) Pid() int {
 	return c.pid
 }
 
+// Delay introdueces the delay in the raft instance 
+// used for the testing purpose
 func (c *consensus) Delay(delay time.Duration) {
 	c.delayChan <- delay
 }
@@ -401,22 +409,6 @@ func (c *consensus) LastLogIndexAndTerm() (int64, int64) {
 	return c.dbInterface.GetLastLogIndex(), c.dbInterface.GetLastLogTerm()
 }
 
-/*
-// this method check the server inbox channel and return the input Envelope to the coller
-func (c *consensus) inbox() *cluster.Envelope {
-	c.mutexInbox.Lock()
-	defer c.mutexInbox.Unlock()
-	var env *cluster.Envelope
-	env = nil
-	select {
-	case env = <-c.server.Inbox():
-		break
-	case <-time.After(1 * time.Second):
-		break
-	}
-	return env
-}
-*/
 // parse function takes it's own id and the path to the directory containg all the configuration files
 func (c *consensus) parse(ownId int, path string) (bool, error) {
 	if LOG >= FINE {
@@ -544,6 +536,7 @@ func getMessage(env *cluster.Envelope) *cluster.Message {
 	return &tMsg
 }
 
+// enterInLocalLog store and log entry in local log 
 func (c *consensus) enterInLocalLog(currentIndex int64, entries []LogEntry) (int64, error) {
 	for i := 0; i < len(entries); i++ {
 		le := entries[i]
@@ -803,12 +796,15 @@ func (c *consensus) follower() int {
 	}
 }
 
+
+// markVote store the current term and votedFor parameter to persistent store
 func (c *consensus) markVote(term int64, candidateId int) {
 	c.currentTerm = term
 	c.lStatus.votedFor = candidateId
 	c.writeAll(c.currentTerm, c.lStatus.votedFor,c.commitIndex,c.lastApplied)
 }
 
+// sendVoteRequestToken send a vote token to pid
 func (c *consensus) sendVoteRequestToken(pid int) {
 	voteReq := VoteRequestToken{Term: c.currentTerm, CandidateId: c.pid, LastLogIndex: c.lastLogIndex, LastLogTerm: c.lastLogTerm}
 	reqMsg := cluster.Message{MsgCode: VOTEREQUEST, Msg: voteReq}
@@ -1064,6 +1060,7 @@ func (c *consensus) sendAppendEntry(peerId int,heartBeat bool) {
 		}
 }
 
+// updateCommitIndex compare the lastlogindex and match index. and accordingly update the commit index
 func (c *consensus) updateCommitIndex() {
 	nextCommitIndex := c.commitIndex + 1
 	// search for largest Index which can be commited
@@ -1135,6 +1132,8 @@ func (c *consensus) executeCommand(cmd interface{} ) (*Result , error){
 	return &result, err
 }
 
+// updateLastAppliedIndex apply the commited commands on state machine and update 
+// lastApplied Index
 func (c *consensus) updateLastAppliedIndex() {
 	if LOG >= HIGH {
 			c.logger.Printf("UpdatingLastApplied : Apply Log in State Machie,LastLogIndex : %v, CommitIndex : %v , LastAppliedIndex %v", c.lastLogIndex, c.commitIndex, c.lastApplied)
@@ -1183,11 +1182,14 @@ func (c *consensus) updateLastAppliedIndex() {
 	}
 }
 
+// updateLastLogIndex fetches the lastLogIndex from logs and update the local variables
 func (c *consensus) updateLastLogIndex() {
 	c.lastLogIndex = c.dbInterface.GetLastLogIndex()
 	c.lastLogTerm = c.dbInterface.GetLastLogTerm()
 }
 
+// initializeNextAndMatchIndex intializes nextIndex and matchIndex 
+// called each time when system moves in the leader state
 func (c *consensus) initializeNextAndMatchIndex() {
 	peers := c.server.Peers()
 	for i := 0; i < len(peers); i++ {
@@ -1231,9 +1233,6 @@ func (c *consensus) leader() int {
 		lastHeartBeatTimeStamp[peerId] = time.Now()
 	}
 	
-
-	
-  
 	for {
 		//updateCommit Index and lastApplied Index
 		c.updateCommitIndex()
@@ -1658,8 +1657,6 @@ LOOP:
 // isRestart : specify whether it is a restart or fresh start of raft isntance
 // The Raft assume that the KVstore exist. In case of the kv store does not exist it
 // will throw an error  
-
-
 func NewRaft(myid int, path string, logLevel int, server *cluster.Server, kvStorePath string,  isRestart bool) (*consensus, bool, error) {
 	var c consensus
 	c.pid = myid

@@ -145,11 +145,11 @@ func findLeader( rObj []*consensus) int{
 
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
-	makeKVStores(NOFRAFT)
 	if err != nil {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
 	}
+	makeKVStores(NOFRAFT)
 	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
 	if ok == false {
 		log.Println(err)
@@ -725,6 +725,59 @@ func TestRaft_IntroducePartition(t *testing.T) {
 }
 
 
+
+
+
+func benchmarkRaft(num int,b * testing.B) {
+	sObjs, err := makeDummyServer(NOFSERVER)
+	if err != nil {
+		log.Println(err)
+		b.Errorf("Cound not instantiate server instances")
+	}
+	
+	makeKVStores(NOFRAFT)
+	
+	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
+	if ok == false {
+		log.Println(err)
+		b.Errorf("Cound not instantiate Raft Instance instances")
+	}
+
+	// inserted delay to allow system to stabalize
+	time.Sleep(1 * time.Second)
+	
+	leader := 0
+	j := 0
+	
+	leader = findLeader(rObj)
+	
+    for i := 0; i < b.N; i++ {
+    	key := "key" +  strconv.Itoa(j)
+		value := "value" + strconv.Itoa(j)
+		j++
+		cmd1 := Command{Cmd : Put , Key : []byte(key)  , Value: []byte(value)}
+		rObj[leader].Outbox() <- &cmd1
+		reply := <-rObj[leader].Inbox()
+		if TEST_LOG_LEVEL >= HIGH {
+			log.Printf("Got Reply %v", reply)
+		}       
+    }
+    
+    shutdownServer(NOFSERVER, sObjs)
+	shutdownRaft(NOFSERVER, rObj)
+}
+
+
+
+func BenchmarkRaft1(b *testing.B)  { benchmarkRaft(100, b) }
+func BenchmarkRaft2(b *testing.B)  { benchmarkRaft(1000, b) }
+func BenchmarkRaft3(b *testing.B)  { benchmarkRaft(10000, b) }
+func BenchmarkRaft4(b *testing.B) { benchmarkRaft(100000, b) }
+func BenchmarkRaft5(b *testing.B) { benchmarkRaft(1000000, b) }
+
+
+
+//func BenchmarkFib40(b *testing.B) { benchmarkFib(40, b) }
 
 
 

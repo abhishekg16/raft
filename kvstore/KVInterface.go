@@ -18,9 +18,7 @@ package kvstore
  }
  
  The present KVstore only assume that the key values are uninterprested byte array.
- 
  The user can easily modify this interface inorder to attach a different kind of KVstore 
-
  **/
 
 
@@ -30,25 +28,26 @@ import (
 	"fmt"
 )
 
+// Type of the command supported by the Key-Value storage
 const (
 	Get = iota
 	Put = iota
 	Del = iota
 )
 
+// KVInterface bound the connection object with Key-Value storage
 type KVInterface struct{
 	conn *db.DbConnection 
 }
 
-
-
+// Command struct used to passe the command to this layer
 type Command struct {
  	Cmd int
  	Key []byte
  	Value []byte
 }
 
-// this method give an instance by using which raft layer can communicate with the
+// GetKVInterface method give an instance by using which raft layer can communicate with the
 // key value storage 
 func GetKVInterface(path string) (*KVInterface , error){
 	 var kvi KVInterface
@@ -60,7 +59,7 @@ func GetKVInterface(path string) (*KVInterface , error){
 	 return  &kvi, nil
 }
 
-// This method execute the command on the KV store and return
+// ExecuteCommand method execute the command on the KV store and return
 // error and result in the []byte array
 func (kvi *KVInterface)ExecuteCommand(cmd * Command) ([]byte, error){
 
@@ -81,6 +80,8 @@ func (kvi *KVInterface)ExecuteCommand(cmd * Command) ([]byte, error){
 	return nil,nil
 }
 
+// CloseKV free all allocated objects and close the connection with the underlying KeyValue 
+// layer
 func (kvi *KVInterface) CloseKV() {
 	kvi.conn.Close()
 }
