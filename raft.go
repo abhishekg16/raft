@@ -265,6 +265,14 @@ func (c *consensus) writeAll(currentTerm int64, votedFor int, commitIndex int64,
 		}
 		return false, err
 	}
+	
+	err = file.Sync()
+	if err != nil {
+		if LOG >= INFO {
+			c.logger.Println("Raft %v: Error : %v", c.pid, err)
+		}
+		return false, err
+	}
 
 	return true, nil
 }
@@ -633,6 +641,8 @@ func (c *consensus) follower() int {
 							c.commitIndex = c.lastLogIndex
 						}
 					}
+					// writeCommitIndex 
+					c.writeCommitIndex(c.commitIndex)
 
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Append Entry With Log : Reply Success ")
@@ -693,6 +703,8 @@ func (c *consensus) follower() int {
 							c.commitIndex = c.lastLogIndex
 						}
 					}
+					
+					c.writeCommitIndex(c.commitIndex)
 
 					if LOG >= FINE {
 						c.logger.Println("Follower State : Append Entry With Log : Reply Success ")
