@@ -145,6 +145,7 @@ func findLeader( rObj []*consensus) int{
 
 func TestRaft_SingleLeaderInATerm(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
+	makeKVStores(NOFRAFT)
 	if err != nil {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
@@ -169,10 +170,14 @@ func TestRaft_SingleLeaderInATerm(t *testing.T) {
 
 func TestRaft_PutAndGetTest(t *testing.T) {
 	sObjs, err := makeDummyServer(NOFSERVER)
+	
 	if err != nil {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
 	}
+	
+	makeKVStores(NOFRAFT)
+	
 	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
 	if ok == false {
 		log.Println(err)
@@ -317,11 +322,16 @@ func TestRaft_MultipleCommandTestWithDelay(t *testing.T) {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
 	}
+	
+	makeKVStores(NOFRAFT)
+	
 	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
 	if ok == false {
 		log.Println(err)
 		t.Errorf("Cound not instantiate Raft Instance instances")
 	}
+
+	
 
 	time.Sleep(2 * time.Second)
 	// send a commond on outbox of every one
@@ -418,6 +428,9 @@ func TestRaft_RestartLeader(t *testing.T) {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
 	}
+	
+	makeKVStores(NOFRAFT)
+	
 	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
 	if ok == false {
 		log.Println(err)
@@ -534,6 +547,9 @@ func TestRaft_Idempotent(t *testing.T) {
 		log.Println(err)
 		t.Errorf("Cound not instantiate server instances")
 	}
+	
+	makeKVStores(NOFRAFT)
+	
 	rObj, ok, err := makeRaftInstances(NOFRAFT, sObjs)
 	if ok == false {
 		log.Println(err)
