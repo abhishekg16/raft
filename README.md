@@ -2,7 +2,7 @@
 This project provides a highly reliable Key-Value store. It uses the Raft consensus algorithm to  keep all the instances of the K-V store consistent. 
 The consensus algorithm guarantee that there would be only one leader a time in the system for a term. The client can contact to leader and get there command executed on the K-V store. 
 Current Implementation has one drawback the raft layer itself updates the K-V store which in not a good design. I might fix this issue in future.
-The raft provides the well defined interface by using which you can get information about the leader, term etc. Raft layer uses the cluster implementation as a underlying communication channel which allows different raft instances to communicate over the network. The underlying commumnication layer give best effort to deliver message but does not gaurentee to deliver it.
+The raft provides the well defined interface by using which you can get information about the leader, term etc. Raft layer uses the cluster implementation as a underlying communication channel which allows different raft instances to communicate over the network. The underlying communication layer give best effort to deliver message but does not guarantee to deliver it.
 	
 It uses LevelDB , which is key-Value store to store the log entries at persistent store. 
 
@@ -18,12 +18,12 @@ It uses LevelDB , which is key-Value store to store the log entries at persisten
 8. Provide APIs which allows to any keyValue store with the system
 
 #### Limitation ####
-1. The storage is linked with the raplication layer which is a bad design.
+1. The storage is linked with the replication layer which is a bad design.
 2. The read commands are also replicated in log which increases the overhead.
 
 
 ##Usages##
-Raft provides a set of configuration files which can be easily configured to control the system behaviour. All the configuration files are present in the conf folder. These files allows user to set proper values of the heart beat frequency, election timeout, log storage locations etc. Configuration files also includes the enough description about each configuration parameter. 
+Raft provides a set of configuration files which can be easily configured to control the system behavior. All the configuration files are present in the conf folder. These files allows user to set proper values of the heart beat frequency, election timeout, log storage locations etc. Configuration files also includes the enough description about each configuration parameter. 
 
 ##### raft.json 
 raft.json have all the configuration parameters related to the raft instance.
@@ -43,7 +43,7 @@ TestConfig.json this file contains the configuration parameters for the test clu
 
 ###API
 
-Raft package provides a New method which take myid ( of the local server),  path ( path of the configuration files ),   server  (serverInstance (set server logger before sending), kvStorePath (path where backend key value store is present), isRestart  (specify whether it is a restart or fresh start of raft isntance) and return a pointer to the new raft instance.
+Raft package provides a New method which take myid ( of the local server),  path ( path of the configuration files ),   server  (serverInstance (set server logger before sending), kvStorePath (path where backend key value store is present), isRestart  (specify whether it is a restart or fresh start of raft instance) and return a pointer to the new raft instance.
 
 {
 
@@ -93,9 +93,9 @@ type Command struct{
 
 
 
-Based on the type of command the raft layer provides the proper response in reponse in LogItem struct. 
+Based on the type of command the raft layer provides the proper response in repose in LogItem struct. 
 
-Each command contains one unique id (CmdId) which uniquly identify the each command and ensure each command is applied only once. This feature ensure the idempotent feature of the system. But system is implemented such that the if client do not want this feature he can pass the command with out the CmdId. 
+Each command contains one unique id (CmdId) which uniquely identify the each command and ensure each command is applied only once. This feature ensure the idempotent feature of the system. But system is implemented such that the if client do not want this feature he can pass the command with out the CmdId. 
 
 The response from client would come in LogItem struct
 
@@ -131,13 +131,13 @@ As system also log the Get command it ensures the linearizable semantics.
 The raft module depends on the cluster for underlying communication. Which internally  usage the Zeromq. Apart from this for logging and storage purpose it also uses the LevelDB.
 
 1. To build the project you need to install the zmq4 golang binding. Binding are present at [Zeromq Go Binding](https://github.com/pebbe/zmq4)
-2. Install the Download and install LevelDB present at [http://code.google.com/p/leveldb/](http://code.google.com/p/leveldb/)
-3. Install LevelDB gobinding present at [https://github.com/jmhodges/levigo](https://github.com/jmhodges/levigo)
+2. Install the Download and install LevelDB present at [http://code.Google.com/p/leveldb/](http://code.google.com/p/leveldb/)
+3. Install LevelDB go binding present at [https://github.com/jmhodges/levigo](https://github.com/jmhodges/levigo)
 4. Get Raft from git hub. *"go get github.com/abhishekg16/raft"*
 5. Go to the raft folder and the give command *"go install".*
 6. Go to raft directory and give command *"go test -v*" to run the test case.
 7. In order to run the test cases along with the benchmark give command *"go test -v -bench=."*
-8. For more involved testCase testing folder have Testcases which kills the server on fly and restarts them (try to simulate real time environment).
+8. For more involved test Case testing folder have Testcases which kills the server on fly and restarts them (try to simulate real time environment).
 	
 	To run this test case use following command
 1.  **mv raftTestSet1_test.go testing/**
@@ -148,29 +148,63 @@ The raft module depends on the cluster for underlying communication. Which inter
 
 
 ##Example##
-Here is an example which instantiate a raft instance and ask for the leader. This main program take the pid of the raft instance as command line argument. So to start this method start following command
+Here are some code sippet of code which shows how to instantiate raft object. For details testing/test_main/test_main.go file should be checked.
+testing/raft_test.go shows how a client can be implemented
 
-$go run raft\_main.go -id 0
 
 ######raft\_main.go
 
-func main() {
+{
+	
 
-	var f int
-	flag.IntVar(&f, "id", -1, "enter pid")
-	flag.Parse()
-	if f == -1 {
-		fmt.Println("Invalid Arguments")
-		os.Exit(0)
+	var s cluster.Server   // creating server
+	var err error
+	serverConfPath := path + "/conf/servers.json"
+	s, err = cluster.New(pid, serverConfPath, nil, serverlogLevel)
+	if err != nil {
+		fmt.Println("Cound not instantiate server , Error : %v", err)
+		return
 	}
+	
+	// creating KV store
+	var kvPath string
+	kvPath = path + kvDir + "/" + kvName + strconv.Itoa(pid)
+	// allocate log KV store
+	if (isRestart == false) {
+		err := db.DestroyDatabase(kvPath)
+		if err != nil {
+			log.Printf("Test : Cound not destroy previous KV the : %v ",kvPath )
+			log.Printf("Test : Error %v ",err )
+			s.Shutdown()
+			return
+		}
+		conn := db.InitializeNewConnection()
+		err = conn.OpenConnection(kvPath)
+		if err != nil {
+			log.Printf("Test : Cound not create connection : %v",kvPath )
+			s.Shutdown()
+			return
+		} 
+		conn.Close()
+		if LOG_LEVEL > 0{	
+			log.Println("Allocated new log data base")
+		}
+	}
+	
 	// create instance
-	rObj, _, err := raft.NewRaft(f, "./conf", 0)
+	raftConfPath := path + "/conf"
+	rObj, ok, err := raft.NewRaft(pid, raftConfPath, raftlogLevel, &s, kvPath ,isRestart)
+	if ok == false {
+			log.Println("Error Occured : Can in instantiate Raft Instances")
+			s.Shutdown()
+			return
+	}
 	if err != nil {
 		log.Println(err)
 		fmt.Println("errorr occured")
-		os.Exit(1)
+		s.Shutdown()
+		return
 	}
-	fmt.Println(rObj.IsTerm()) 
 
 }
 
