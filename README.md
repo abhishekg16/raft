@@ -21,6 +21,7 @@ It uses LevelDB , which is key-Value store to store the log entries at persisten
 1. The storage is linked with the raplication layer which is a bad design.
 2. The read commands are also replicated in log which increases the overhead.
 
+
 ##Usages##
 Raft provides a set of configuration files which can be easily configured to control the system behaviour. All the configuration files are present in the conf folder. These files allows user to set proper values of the heart beat frequency, election timeout, log storage locations etc. Configuration files also includes the enough description about each configuration parameter. 
 
@@ -82,7 +83,7 @@ type Command struct{
 
 	CmdId int64      // unique command Id send by client
 
-	Cmd int			 // Command Type {Get, Put, Del}
+	Cmd int			 // Command Type {Get, Put, Del ,IsLeader ,Term , LastLogTermAndIndex}
 
 	Key []byte		 // Key in byte array 
 
@@ -90,7 +91,36 @@ type Command struct{
 
 }
 
-Based on the type of command the raft layer provides the proper response in reponse in LogItem struct(see API docs for details). Each command contains one unique id (CmdId) which uniquly identify the each command and ensure each command is applied only once. This feature ensure the idempotent feature of the system.
+
+
+
+Based on the type of command the raft layer provides the proper response in reponse in LogItem struct. 
+
+Each command contains one unique id (CmdId) which uniquly identify the each command and ensure each command is applied only once. This feature ensure the idempotent feature of the system. But system is implemented such that the if client do not want this feature he can pass the command with out the CmdId. 
+
+The response from client would come in LogItem struct
+
+
+type LogItem struct {
+
+	Index int64
+
+	Data  interface{}
+
+}
+
+
+The error also send to using following Index value in reply message. Notice index value can not be negative
+
+{
+
+// index = -1 (Not Leader) , Data will contain leaderId as int
+// index = -2 (Error), Data will contain the error object
+// index = -3 (Command Not supported)
+// index = -4 (Contains term) , Data will contain Term as int64
+// index = -5 (Term Index pair), Data will contain IndexTerm struct (see API docs)
+
+}
 
 As system also log the Get command it ensures the linearizable semantics.
 
@@ -104,6 +134,15 @@ The raft module depends on the cluster for underlying communication. Which inter
 5. Go to the raft folder and the give command *"go install".*
 6. Go to raft directory and give command *"go test -v*" to run the test case.
 7. In order to run the test cases along with the benchmark give command *"go test -v -bench=."*
+8. For more involved testCase testing folder have Testcases which kills the server on fly and restarts them (try to simulate real time environment).
+	
+	To run this test case use following command
+1.  **mv raftTestSet1_test.go testing/**
+2.  **mv testing/raft_test.go ./**
+3.  Open raft_test.go and update to const present at top : Path : Path of the go's bin folder, currDir : Path of the root Dir of the raft  
+4.  **go test -v**
+
+
 
 ##Example##
 Here is an example which instantiate a raft instance and ask for the leader. This main program take the pid of the raft instance as command line argument. So to start this method start following command
