@@ -140,19 +140,23 @@ The raft module depends on the cluster for underlying communication. Which inter
 8. For more involved test Case testing folder have Testcases which kills the server on fly and restarts them (try to simulate real time environment).
 	
 	To run this test case use following command
+
 1.  **mv raftTestSet1_test.go testing/**
 2.  **mv testing/raft_test.go ./**
 3.  Open raft_test.go and update to const present at top : Path : Path of the go's bin folder, currDir : Path of the root Dir of the raft  
-4.  **go test -v**
+4.  **cd testing/test_main/**
+5.  **go install**
+6.  come back to raft base directory
+5.  **go test -v**
 
 
 
 ##Example##
-Here are some code sippet of code which shows how to instantiate raft object. For details testing/test_main/test_main.go file should be checked.
-testing/raft_test.go shows how a client can be implemented
+Here are some code sippet of code which shows how to instantiate raft object. For details see testing/test_main/raft_main.go file. 
+testing/raft_test.go shows how a client can be implemented.
 
 
-######raft\_main.go
+######testing/test_main/raft_main.go
 
 {
 	
