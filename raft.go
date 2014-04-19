@@ -495,6 +495,8 @@ func init() {
 	gob.Register(LogItem{})
 	gob.Register(Command{})
 	gob.Register(Result{})
+	gob.Register(IndexTerm{})
+	
 }
 
 // leader tracker runs the timer in case timeout happen it will send and message on the out channel
@@ -569,7 +571,7 @@ func (c *consensus) follower() int {
 	if LOG >= HIGH {
 		c.logger.Printf("Raft %v: Follower State : Follow is Activated\n", c.pid)
 	}
-
+	c.state = FOLLOWER
 	in_leaderTracker := make(chan bool, 1)
 	out_leaderTracker := make(chan bool, 1)
 	go c.leaderTracker(in_leaderTracker, out_leaderTracker)
@@ -830,6 +832,7 @@ func (c *consensus) candidate() int {
 	if LOG >= HIGH {
 		c.logger.Println("Candidate State : System in candidate state")
 	}
+	c.state = CANDIDATE
 	followerPid := c.server.Peers()
 	voteResponseMap := make(map[int]bool, len(followerPid))
 	voteCount := 1
@@ -1180,11 +1183,18 @@ func (c *consensus) updateLastAppliedIndex() {
 				}
 				return
 			}
-			cmdReply := LogItem{Index: i, Data: *result} 
-			c.inRaft <- &cmdReply
-			if LOG >= HIGH {
+			if c.state == LEADER {
+				cmdReply := LogItem{Index: i, Data: *result} 
+				c.inRaft <- &cmdReply
+				if LOG >= HIGH {
 				c.logger.Printf("UpdatingLastApplied: Replied to client %+v", cmdReply)
+				}
+			} else {
+				if LOG >= HIGH {
+					c.logger.Printf("UpdatingLastApplied:........ ", )
+				}
 			}
+			
 		}
 		c.lastApplied = c.commitIndex
 		_, err := c.writeLastApplied(c.lastApplied)
@@ -1219,6 +1229,7 @@ func (c *consensus) leader() int {
 		c.logger.Println("Leader State :System in Leader State")
 	}
 
+	c.state = LEADER
 	c.lStatus.status = true
 	c.lStatus.pidOfLeader = c.pid
 

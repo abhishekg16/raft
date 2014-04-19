@@ -27,6 +27,8 @@ const (
 	VOTERESPONSE = iota // Repesent the vote reponse message
 	RESPONSE     = iota // This message is used for response of append entry
 	SHUTDOWNRAFT = iota
+	CRequest= iota		// client Request
+	CResponse = iota
 )
 
 // Differnet Possible States of the Raft System

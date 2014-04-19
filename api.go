@@ -18,8 +18,11 @@ type Raft interface {
 }
 
 // Loginging Structs. This is send back to client
-//  index = -1 (Not Leader)
-//  index = -2 (Error)
+// index = -1 (Not Leader) 
+// index = -2 (Error)
+// index = -3 (Command Not supported)
+// index = -4 (Contains term)
+// index = -5 (Term Index pair)
 
 type LogItem struct {
 	Index int64
@@ -32,12 +35,19 @@ type LogEntry struct {
 	Command interface{}
 }
 
+type IndexTerm struct {
+	Index int64
+	Term int64
+}
 
 // Type of commad Supported
 const (
 	Get = iota
 	Put = iota
 	Del = iota
+	IsLeader = iota
+	Term = iota
+	LastLogTermAndIndex = iota
 )
 
 // error code 
@@ -60,6 +70,4 @@ type Result struct{
 	Error error 
 	Value []byte
 }
-
-
 
