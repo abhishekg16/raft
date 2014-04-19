@@ -69,10 +69,9 @@ type Raft interface {
 
     Shutdown() // Shutdown the raft instance 
 
-   // DEBUG
-   LastLogIndexAndTerm() (int64,int64) // Return the lastLogTerm and Index
+    LastLogIndexAndTerm() (int64,int64) // Return the lastLogTerm and Index (For Debug)
   
-   PrintLog()                           // Print the Log in logging File
+    PrintLog()                           // Print the Log in logging File (For Debug)
 	
 }
  
@@ -114,11 +113,15 @@ The error also send to using following Index value in reply message. Notice inde
 
 {
 
-// index = -1 (Not Leader) , Data will contain leaderId as int
-// index = -2 (Error), Data will contain the error object
-// index = -3 (Command Not supported)
-// index = -4 (Contains term) , Data will contain Term as int64
-// index = -5 (Term Index pair), Data will contain IndexTerm struct (see API docs)
+	index = -1 (Not Leader) , Data will contain leaderId as int
+
+	index = -2 (Error), Data will contain the error object
+
+	index = -3 (Command Not supported)
+
+	index = -4 (Contains term) , Data will contain Term as int64
+
+	index = -5 (Term Index pair), Data will contain IndexTerm struct (see API docs)
 
 }
 
