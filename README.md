@@ -121,7 +121,7 @@ The error also send to using following Index value in reply message. Notice inde
 
 	index = -4 (Contains term) , Data will contain Term as int64
 
-	index = -5 (Term Index pair), Data will contain IndexTerm struct (see API docs)
+	index = -5 (Last Index & Term pair), Data will contain IndexTerm struct (see API docs)
 
 }
 
