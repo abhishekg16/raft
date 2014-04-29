@@ -143,7 +143,7 @@ The raft module depends on the cluster for underlying communication. Which inter
 4. Get Raft from git hub. *"go get github.com/abhishekg16/raft"*
 5. Go to the raft folder and the give command *"go install".*
 6. Go to raft directory and give command *"go test -v*" to run the test case.
-7. In order to run the test cases along with the benchmark give command *"go test -v -bench=."*
+7. In order to run the benchmark give command *"go test -v -run=XXX -bench=."*
 8. For more involved test Case testing folder have Testcases which kills the server on fly and restarts them (try to simulate real time environment).
 	
 	To run this test case use following command
