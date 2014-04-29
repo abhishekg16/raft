@@ -40,11 +40,7 @@ raft.json have all the configuration parameters related to the raft instance.
 ##### servers.json
 servers.json file have all the configuration parameter related to the cluster instance. It contains the IDs, the socket address of all the peer instances. ID : represents the ID for the server.(should start from 0), IP : IP address of the server instance, Port1 : Port to send the control message, Port 2: Port to send the data message (in current implementation Port 2 is not in use, all the message are send on control port. It can be used in future to transfer message on separate ports.) All the parameters must be filled.
 
-{
-
- "ID":"0", "IP" : "127.0.0.1" , "Port1" : "8081", "Port2" : "8091" 
-
-}
+{  "ID":"0", "IP" : "127.0.0.1" , "Port1" : "8081", "Port2" : "8091" }
 
 ##### TestConfig.json 
 TestConfig.json this file contains the configuration parameters for the test cluster. It is similar to server.json file.
