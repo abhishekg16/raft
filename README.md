@@ -42,7 +42,7 @@ servers.json file have all the configuration parameter related to the cluster in
 
 {
 
- { "ID":"0", "IP" : "127.0.0.1" , "Port1" : "8081", "Port2" : "8091" }
+ "ID":"0", "IP" : "127.0.0.1" , "Port1" : "8081", "Port2" : "8091" 
 
 }
 
