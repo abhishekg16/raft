@@ -15,10 +15,12 @@ It uses LevelDB , which is key-Value store to store the log entries at persisten
 5. System can bear upto n/2 node failures.
 6. Provide two different port for the message and control message (But not used in current Implementation)
 7. Ensure the idempotent execution of the command, ensures each command is executed only once
-8. Provide APIs which allows to any keyValue store with the system
+8. Provide APIs which allows to system to integrate any Key-Value store
+9. Provides linearizable semantic.
 
 #### Limitation ####
-1. The storage is linked with the replication layer which is a bad design.
+1. The storage is linked with the replication layer which is a bad design. But Raft layer uses the in interface to communicate with storage layer. So
+in order to integrate a new storage use can rewrite that interface.
 2. The read commands are also replicated in log which increases the overhead.
 
 
@@ -36,14 +38,19 @@ raft.json have all the configuration parameters related to the raft instance.
 
 
 ##### servers.json
-servers.json file have all the configuration parameter related to the cluster instance. It contains the ID the socket address of all the peer instances.
+servers.json file have all the configuration parameter related to the cluster instance. It contains the IDs, the socket address of all the peer instances. ID : represents the ID for the server.(should start from 0), IP : IP address of the server instance, Port1 : Port to send the control message, Port 2: Port to send the data message (in current implementation Port 2 is not in use, all the message are send on control port. It can be used in future to transfer message on separate ports.) All the parameters must be filled.
+{
+
+ { "ID":"0", "IP" : "127.0.0.1" , "Port1" : "8081", "Port2" : "8091" }
+
+}
 
 ##### TestConfig.json 
-TestConfig.json this file contains the configuration parameters for the test cluster
+TestConfig.json this file contains the configuration parameters for the test cluster. It is similar to server.json file.
 
 ###API
 
-Raft package provides a New method which take myid ( of the local server),  path ( path of the configuration files ),   server  (serverInstance (set server logger before sending), kvStorePath (path where backend key value store is present), isRestart  (specify whether it is a restart or fresh start of raft instance) and return a pointer to the new raft instance.
+Raft package provides a NewRaft method which take myid ( of the local raft Instance),  path ( path of the configuration files ),   server  (server Instance , user must set logger of server instance before passing), kvStorePath (path where backend key value store is present where final data you be stored), isRestart  (specify whether it is a restart or fresh start of raft instance) and return a pointer to the new raft instance.
 
 {
 
@@ -51,7 +58,7 @@ Raft package provides a New method which take myid ( of the local server),  path
 
 }
 
-A Raft instance provide following interface by which client can communicate to raft instance. Apart from this also have some method in interface which are being used for Debugging purpose.
+A Raft instance provide following interface by which a raft layer's client can communicate to raft instance. This also have some method in interface which are being used for Debugging purpose.
 
 type Raft interface {
 
@@ -76,7 +83,7 @@ type Raft interface {
 }
  
 
-After starting the raft instances. Client can send a request in form of Command on outbox. Current Implementation support three commands : Put, Get, Del.
+After starting the raft instances. Client can send a request in form of Command struct (shown below this paragraph). Current implementation support three commands : Put, Get, Del. Final client of Key-Value store will get Term, IsLeader, Get, Put and Del functionalities.
 
 type Command struct{
 
@@ -102,14 +109,14 @@ The response from client would come in LogItem struct
 
 type LogItem struct {
 
-	Index int64
+	Index int64 	// Index of Command
 
-	Data  interface{}
+	Data  interface{}   // Returned Data
 
 }
 
 
-The error also send to using following Index value in reply message. Notice index value can not be negative
+The error also send to using following Index value in reply message. Notice index value can not be negative in case of success.
 
 {
 
@@ -125,7 +132,7 @@ The error also send to using following Index value in reply message. Notice inde
 
 }
 
-As system also log the Get command it ensures the linearizable semantics.
+As system also log the Get command, it ensures the linearizable semantics. ( We should avoid logging of Get commond, this is drawbacl of system )
 
 ##Building##
 The raft module depends on the cluster for underlying communication. Which internally  usage the Zeromq. Apart from this for logging and storage purpose it also uses the LevelDB.
@@ -148,6 +155,18 @@ The raft module depends on the cluster for underlying communication. Which inter
 5.  **go install**
 6.  come back to raft base directory
 5.  **go test -v**
+
+
+##TestCases##
+Following Testcases are implemented to test the correctness of the system. Testing the system might take some time as some amount of delay has been added in testcases to simulate different test scenarios. See the raftTestSet1.test for details (what each test case does).
+
+1. TestRaft_SingleLeaderInATerm
+2. TestRaft_PutAndGetTest
+3. TestRaft_MultipleCommandTestWithDelay  
+4. TestRaft_RestartLeader
+5. TestRaft_Idempotent
+6. TestRaft_IntroducePartition
+7. One test case to kill servers in fly and restart them again to simulate the real scenario.
 
 
 
